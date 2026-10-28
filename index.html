@@ -18,7 +18,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #080a0f;
+      background-color: #0b0d13;
       color: #f4ecd8;
       font-family: -apple-system, BlinkMacSystemFont, 'Courier New', Courier, monospace;
       display: flex;
@@ -28,28 +28,20 @@
       overscroll-behavior: none;
     }
 
-    #game-wrapper {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 8px 8px 0 8px;
-    }
-
     #viewport-container {
       position: relative;
       width: 100%;
-      max-width: 580px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       align-items: center;
       background: #12141d;
       border: 3px solid #d3b15f;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
-      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 18px rgba(211,177,95,0.25);
+      margin-top: 8px;
+      cursor: pointer;
     }
-
     canvas#gameCanvas {
       width: 100%;
       height: auto;
@@ -59,32 +51,27 @@
       image-rendering: crisp-edges;
       background-color: #000;
       display: block;
+      border-radius: 4px;
     }
 
-    #ui-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 14px;
-      font-size: 13px;
-      font-weight: 700;
+    .instructions {
+      font-size: 11px;
       color: #d3b15f;
-      background: #181d28;
-      border-top: 1px solid #2b3345;
+      margin-top: 4px;
+      text-align: center;
+      padding: 4px 8px;
     }
 
-    /* TOUCH CONTROLS */
+    /* CONTROLS CLUSTER */
     #touch-controls {
-      width: 100%;
-      max-width: 600px;
       display: flex;
+      width: 100%;
+      max-width: 640px;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 24px calc(14px + env(safe-area-inset-bottom)) 24px;
+      padding: 8px 16px calc(14px + env(safe-area-inset-bottom)) 16px;
       touch-action: none;
     }
-
-    /* D-PAD STYLING */
     .dpad {
       position: relative;
       width: 140px;
@@ -95,434 +82,1351 @@
       position: absolute;
       width: 46px;
       height: 46px;
-      background: #232938;
-      border: 2px solid #5a6273;
+      background: #2b3345;
+      border: 2px solid #69717d;
       border-radius: 10px;
       color: #d3b15f;
-      font-size: 18px;
+      font-weight: bold;
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 0 #0d1017;
+      font-size: 18px;
+      box-shadow: 0 4px 0 #12141d;
       cursor: pointer;
     }
-    .d-btn.active, .d-btn:active {
-      background: #48546e;
+    .d-btn:active, .d-btn.active {
+      background: #47536e;
       transform: translateY(2px);
-      box-shadow: 0 2px 0 #0d1017;
+      box-shadow: 0 2px 0 #12141d;
       color: #00f0ff;
     }
-    .d-up    { top: 0; left: 47px; }
-    .d-down  { bottom: 0; left: 47px; }
-    .d-left  { top: 47px; left: 0; }
-    .d-right { top: 47px; right: 0; }
+    #btn-up    { top: 0; left: 47px; }
+    #btn-down  { bottom: 0; left: 47px; }
+    #btn-left  { top: 47px; left: 0; }
+    #btn-right { top: 47px; right: 0; }
     .d-center {
       position: absolute;
       top: 47px;
       left: 47px;
       width: 46px;
       height: 46px;
-      background: #141722;
+      background: #1c222e;
       border-radius: 4px;
     }
 
-    /* ACTION BUTTON */
-    #action-btn {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      background: #2b3345;
-      border: 3px solid #d3b15f;
-      color: #d3b15f;
-      font-weight: 800;
-      font-size: 13px;
+    .mid-cluster {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 0 #12141d;
-      cursor: pointer;
-      touch-action: none;
+      gap: 8px;
     }
-    #action-btn.active, #action-btn:active {
-      transform: translateY(3px);
+    .aux-btn {
+      background: #2b3345;
+      border: 2px solid #d3b15f;
+      color: #d3b15f;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 10px 14px;
+      border-radius: 12px;
       box-shadow: 0 3px 0 #12141d;
-      background: #3f4c66;
+      cursor: pointer;
+    }
+    .aux-btn:active, .aux-btn.active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #12141d;
+      background: #47536e;
     }
 
-    /* POPUP OVERLAY */
-    #message {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(14, 17, 25, 0.96);
-      border: 2px solid #d3b15f;
-      padding: 20px 24px;
-      text-align: center;
-      border-radius: 10px;
-      z-index: 50;
-      display: none;
-      width: 82%;
-      max-width: 320px;
-      box-shadow: 0 0 24px rgba(0,0,0,0.9);
+    .action-cluster {
+      display: flex;
+      gap: 16px;
+      transform: rotate(-10deg);
     }
-    #message h2 {
-      color: #d3b15f;
-      margin-bottom: 8px;
-      font-size: 18px;
-    }
-    #message p {
-      font-size: 13px;
-      line-height: 1.4;
-      margin-bottom: 16px;
-      color: #f4ecd8;
-    }
-    #restartBtn {
-      background: #d3b15f;
-      color: #0b0d13;
-      border: none;
-      padding: 10px 20px;
-      font-family: inherit;
-      font-weight: bold;
-      font-size: 13px;
+    .act-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #945b34;
+      border: 3px solid #d3b15f;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 5px 0 #4a2813;
       cursor: pointer;
-      border-radius: 6px;
     }
+    .act-btn:active, .act-btn.active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #4a2813;
+      background: #b87545;
+    }
+    #btn-a { margin-bottom: 20px; background: #2d5a3f; box-shadow: 0 5px 0 #142e1f; }
+    #btn-a:active, #btn-a.active { background: #3f7d58; box-shadow: 0 2px 0 #142e1f; }
   </style>
 </head>
 <body>
 
-  <div id="game-wrapper">
-    <div id="viewport-container">
-      <canvas id="gameCanvas" width="320" height="240"></canvas>
-      <div id="ui-bar">
-        <span>SANITI: <span id="sanityVal">100</span>%</span>
-        <span>BATERI: <span id="batteryVal">100</span>%</span>
-      </div>
-      <div id="message">
-        <h2 id="msgTitle">Bayang-Bayang</h2>
-        <p id="msgBody">Bayang-bayang gelap mendekat! Cari portal emas di bucu atas kanan.</p>
-        <button id="restartBtn">MULA SEMULA</button>
-      </div>
-    </div>
+  <div id="viewport-container">
+    <canvas id="gameCanvas" width="320" height="240"></canvas>
+  </div>
+
+  <div class="instructions">
+    [A]: Sah / Serang | [B]: Batal / Menu | Sentuh skrin untuk [A]
   </div>
 
   <div id="touch-controls">
     <div class="dpad">
       <div class="d-center"></div>
-      <div class="d-btn d-up" data-dir="up">▲</div>
-      <div class="d-btn d-down" data-dir="down">▼</div>
-      <div class="d-btn d-left" data-dir="left">◀</div>
-      <div class="d-btn d-right" data-dir="right">▶</div>
+      <div class="d-btn" id="btn-up">▲</div>
+      <div class="d-btn" id="btn-down">▼</div>
+      <div class="d-btn" id="btn-left">◀</div>
+      <div class="d-btn" id="btn-right">▶</div>
     </div>
-    <div id="action-btn">
-      <span>LAMPU</span>
+    
+    <div class="mid-cluster">
+      <div class="aux-btn" id="btn-menu">MENU [B]</div>
+    </div>
+
+    <div class="action-cluster">
+      <div class="act-btn" id="btn-b">B</div>
+      <div class="act-btn" id="btn-a">A</div>
     </div>
   </div>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width;
-    const H = canvas.height;
+<script>
+// --- SAFE STORAGE WRAPPER ---
+const Storage = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch(e) { return null; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, val); } catch(e) {}
+  }
+};
 
-    let player = { x: 30, y: 120, w: 10, h: 14, speed: 1.6 };
-    let moveDir = { up: false, down: false, left: false, right: false };
-    let shadows = [];
-    let sanity = 100;
-    let battery = 100;
-    let gameOver = false;
-    let won = false;
-    let lightOn = false;
-    let exit = { x: 285, y: 25, w: 22, h: 22 };
-    let trees = [];
-    let time = 0;
+// --- AUDIO SYNTHESIZER ---
+class RetroAudio {
+  constructor() {
+    this.ctx = null;
+    this.soundOn = true;
+  }
+  init() {
+    if (!this.ctx) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) this.ctx = new AudioCtx();
+      } catch(e) {}
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+  beep(freq = 750, dur = 0.04) {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + dur);
+    } catch(e){}
+  }
+  select() {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(880, now + 0.03);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } catch(e){}
+  }
+  hit() {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const bufSize = Math.floor(this.ctx.sampleRate * 0.12);
+      const buffer = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.3));
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+      noise.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start(now);
+    } catch(e){}
+  }
+  levelUp() {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const notes = [440, 554, 659, 880];
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.07);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.07 + 0.09);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + idx * 0.07);
+        osc.stop(this.ctx.currentTime + idx * 0.07 + 0.09);
+      });
+    } catch(e){}
+  }
+}
+const audio = new RetroAudio();
 
-    function initObstacles() {
-      trees = [];
-      while (trees.length < 15) {
-        const candidate = {
-          x: 45 + Math.random() * 230,
-          y: 20 + Math.random() * 200,
-          r: 6 + Math.random() * 7
-        };
-        const distStart = Math.hypot(candidate.x - player.x, candidate.y - player.y);
-        const distExit = Math.hypot(candidate.x - exit.x, candidate.y - exit.y);
-        if (distStart > 40 && distExit > 40) {
-          trees.push(candidate);
+// --- MOVES DATABASE ---
+const MOVES = {
+  "Scratch": { name: "Scratch", type: "Normal", power: 40, acc: 100, maxPp: 30, desc: "Cakaran kuku tajam." },
+  "Karat Shield": { name: "Karat Shield", type: "Steel", power: 0, acc: 100, maxPp: 15, buffDef: 1, desc: "Perisai besi tebal (+Def)." },
+  "Iron Clamp": { name: "Iron Clamp", type: "Steel", power: 65, acc: 95, maxPp: 15, desc: "Kepit ragum jentera lama." },
+  "Sap Trap": { name: "Sap Trap", type: "Flora", power: 0, acc: 100, maxPp: 20, debuffSpd: 1, desc: "Gam getah likat (-Spd musuh)." },
+  "Latex Slap": { name: "Latex Slap", type: "Flora", power: 45, acc: 100, maxPp: 25, desc: "Libasan getah sekerap." },
+  "Root Leech": { name: "Root Leech", type: "Flora", power: 50, acc: 100, maxPp: 10, drain: 0.5, desc: "Serap 50% HP kerosakan." },
+  "Aqua Jet": { name: "Aqua Jet", type: "Water", power: 40, acc: 100, maxPp: 20, priority: 1, desc: "Pancutan air lombong laju." },
+  "Claw Snap": { name: "Claw Snap", type: "Water", power: 55, acc: 95, maxPp: 15, desc: "Sepit deras udang galah." },
+  "Mud Blind": { name: "Mud Blind", type: "Earth", power: 30, acc: 90, maxPp: 15, desc: "Lontaran lumpur kelodak." },
+  "Molten Blast": { name: "Molten Blast", type: "Fire", power: 75, acc: 90, maxPp: 10, desc: "Semburan bijih lebur panas." },
+  "Slag Armor": { name: "Slag Armor", type: "Steel", power: 0, acc: 100, maxPp: 10, buffDef: 2, desc: "Kerak sanga padu (+Def x2)." }
+};
+
+// --- BASE SPECIES STATS ---
+const SPECIES = {
+  "KARAT": {
+    name: "Karat", type: "Steel", baseHp: 38, baseAtk: 22, baseDef: 28, baseSpd: 18,
+    moves: ["Scratch", "Karat Shield", "Iron Clamp"]
+  },
+  "GETAH": {
+    name: "Getah", type: "Flora", baseHp: 46, baseAtk: 16, baseDef: 24, baseSpd: 14,
+    moves: ["Latex Slap", "Sap Trap", "Root Leech"]
+  },
+  "CENCAL": {
+    name: "Cencal", type: "Water", baseHp: 32, baseAtk: 26, baseDef: 16, baseSpd: 32,
+    moves: ["Aqua Jet", "Claw Snap", "Mud Blind"]
+  },
+  "LEBURAN": {
+    name: "Leburan", type: "Fire", baseHp: 75, baseAtk: 32, baseDef: 26, baseSpd: 20,
+    moves: ["Molten Blast", "Slag Armor", "Scratch"]
+  }
+};
+
+function createMonster(speciesKey, level = 5) {
+  const base = SPECIES[speciesKey] || SPECIES["KARAT"];
+  const maxHp = Math.floor((base.baseHp * 2 * level) / 100) + level + 10;
+  const atk = Math.floor((base.baseAtk * 2 * level) / 100) + 5;
+  const def = Math.floor((base.baseDef * 2 * level) / 100) + 5;
+  const spd = Math.floor((base.baseSpd * 2 * level) / 100) + 5;
+
+  const moveData = base.moves.map(mName => {
+    const m = MOVES[mName] || MOVES["Scratch"];
+    return { name: m.name, pp: m.maxPp, maxPp: m.maxPp };
+  });
+
+  return {
+    speciesKey,
+    name: base.name,
+    type: base.type,
+    level,
+    exp: 0,
+    expNext: level * level * 8,
+    maxHp,
+    hp: maxHp,
+    atk,
+    def,
+    spd,
+    moves: moveData
+  };
+}
+
+// --- ENGINE SETUP & STATE CONSTANTS ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+const STATE = {
+  TITLE_SCREEN: 0,
+  MAIN_MENU: 1,
+  SETTINGS: 2,
+  OVERWORLD: 3,
+  PAUSE_MENU: 4,
+  PARTY_VIEW: 5,
+  BAG_VIEW: 6,
+  DIALOGUE: 7,
+  CHOICE: 8,
+  BATTLE: 9,
+  ENDING: 10
+};
+
+let gameState = STATE.TITLE_SCREEN;
+
+const settings = {
+  textSpeed: 1,
+  sound: true
+};
+
+const player = {
+  name: "Danial",
+  x: 5,
+  y: 6,
+  party: [],
+  hasKarat: false,
+  chapter: 1,
+  steps: 0,
+  bag: [
+    { name: "Minyak Angin", count: 3, heal: 25, desc: "Pulihkan 25 HP raksasa." },
+    { name: "Kopi O Panas", count: 2, restorePp: 10, desc: "Segarkan 10 PP langkah." }
+  ]
+};
+
+// Map Grid
+const MAP_W = 20;
+const MAP_H = 15;
+const TILE_SIZE = 16;
+const mapData = [
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,0,0,0,1,1,0,0,0,0,2,2,2,0,0,0,0,0,0,1,
+  1,0,3,0,1,1,0,4,0,0,2,2,2,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,1,0,1,1,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+  1,0,0,0,1,0,0,0,0,0,0,0,0,2,2,2,2,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+  1,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+];
+
+function isSolid(x, y) {
+  if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H) return true;
+  const tile = mapData[y * MAP_W + x];
+  return tile === 1 || tile === 5;
+}
+
+let mainMenuIdx = 0;
+let settingsIdx = 0;
+let pauseMenuIdx = 0;
+let bagMenuIdx = 0;
+let partyMenuIdx = 0;
+let hasSavedFile = false;
+let blinkTimer = 0;
+
+let dialogueLines = [];
+let dialogueIdx = 0;
+let dialogueCallback = null;
+let activeChoice = null;
+let battle = null;
+let hudNotice = "";
+let hudNoticeTimer = 0;
+
+function checkExistingSave() {
+  const d = Storage.get('bayang_save_rpg_master');
+  hasSavedFile = !!d;
+}
+checkExistingSave();
+
+function saveGame() {
+  const payload = { player, settings };
+  Storage.set('bayang_save_rpg_master', JSON.stringify(payload));
+  hudNotice = "Permainan Disimpan!";
+  hudNoticeTimer = 70;
+  hasSavedFile = true;
+  audio.select();
+}
+
+function loadGame() {
+  const raw = Storage.get('bayang_save_rpg_master');
+  if (!raw) return false;
+  try {
+    const data = JSON.parse(raw);
+    player.x = data.player.x;
+    player.y = data.player.y;
+    player.chapter = data.player.chapter;
+    player.hasKarat = data.player.hasKarat;
+    player.party = data.player.party || [];
+    player.bag = data.player.bag || [];
+    player.steps = data.player.steps || 0;
+    if (data.settings) {
+      settings.textSpeed = data.settings.textSpeed ?? 1;
+      settings.sound = data.settings.sound ?? true;
+      audio.soundOn = settings.sound;
+    }
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function startDialogue(lines, cb = null) {
+  dialogueLines = lines;
+  dialogueIdx = 0;
+  dialogueCallback = cb;
+  gameState = STATE.DIALOGUE;
+  audio.beep(850, 0.03);
+}
+
+function startChoice(prompt, optionA, optionB, onSelect) {
+  activeChoice = {
+    prompt,
+    optA: optionA,
+    optB: optionB,
+    selected: 0,
+    callback: onSelect
+  };
+  gameState = STATE.CHOICE;
+  audio.select();
+}
+
+// --- BATTLE SYSTEM ---
+function startBattle(enemySpeciesKey, enemyLevel = 6, onWin = null) {
+  if (!player.party || player.party.length === 0) {
+    player.party = [createMonster("KARAT", 5)];
+    player.hasKarat = true;
+  }
+  const playerMon = player.party[0];
+  const enemyMon = createMonster(enemySpeciesKey, enemyLevel);
+
+  battle = {
+    playerMon,
+    enemyMon,
+    menuIdx: 0,
+    turnState: 'PLAYER_INPUT',
+    log: [`Seekor ${enemyMon.name} (Tahap ${enemyMon.level}) muncul!`],
+    onWin
+  };
+  gameState = STATE.BATTLE;
+  audio.select();
+}
+
+function executePlayerMove(moveIndex) {
+  if (!battle || !battle.playerMon) return;
+  const moveObj = battle.playerMon.moves[moveIndex];
+  if (!moveObj) return;
+  const ref = MOVES[moveObj.name] || MOVES["Scratch"];
+
+  if (moveObj.pp <= 0) {
+    battle.log = ["PP langkah ini telah habis!"];
+    audio.beep(300, 0.08);
+    return;
+  }
+
+  moveObj.pp--;
+  battle.turnState = 'BUSY';
+  battle.log = [`${battle.playerMon.name} guna ${moveObj.name}!`];
+  audio.hit();
+
+  setTimeout(() => {
+    if (!battle) return;
+    if (Math.random() * 100 > ref.acc) {
+      battle.log.push(`${battle.playerMon.name} tersasar!`);
+    } else {
+      if (ref.buffDef) {
+        battle.playerMon.def += 4;
+        battle.log.push(`Pertahanan Karat meningkat!`);
+      }
+      if (ref.power > 0) {
+        const dmg = Math.max(4, Math.floor((battle.playerMon.atk * ref.power) / (battle.enemyMon.def + 8)));
+        battle.enemyMon.hp = Math.max(0, battle.enemyMon.hp - dmg);
+        battle.log.push(`Memberi ${dmg} kerosakan.`);
+        if (ref.drain) {
+          const heal = Math.floor(dmg * ref.drain);
+          battle.playerMon.hp = Math.min(battle.playerMon.maxHp, battle.playerMon.hp + heal);
+          battle.log.push(`${battle.playerMon.name} menyerap ${heal} HP.`);
         }
       }
     }
 
-    function spawnShadows() {
-      shadows = [];
-      for (let i = 0; i < 4; i++) {
-        shadows.push({
-          x: 120 + Math.random() * 140,
-          y: 30 + Math.random() * 180,
-          vx: (Math.random() - 0.5) * 0.7,
-          vy: (Math.random() - 0.5) * 0.7,
-          size: 11 + Math.random() * 6
-        });
-      }
-    }
+    if (battle.enemyMon.hp <= 0) {
+      setTimeout(() => {
+        if (!battle) return;
+        battle.log = [`${battle.enemyMon.name} tumpas!`];
+        const gainExp = battle.enemyMon.level * 18;
+        battle.playerMon.exp += gainExp;
+        battle.log.push(`${battle.playerMon.name} raih ${gainExp} EXP!`);
+        audio.select();
 
-    initObstacles();
-    spawnShadows();
-
-    // Keyboard support (if on iPad with keyboard or Mac)
-    window.addEventListener('keydown', e => {
-      const k = e.key.toLowerCase();
-      if (k === 'arrowup' || k === 'w') moveDir.up = true;
-      if (k === 'arrowdown' || k === 's') moveDir.down = true;
-      if (k === 'arrowleft' || k === 'a') moveDir.left = true;
-      if (k === 'arrowright' || k === 'd') moveDir.right = true;
-      if (k === ' ' || k === 'enter') toggleLight();
-    });
-    window.addEventListener('keyup', e => {
-      const k = e.key.toLowerCase();
-      if (k === 'arrowup' || k === 'w') moveDir.up = false;
-      if (k === 'arrowdown' || k === 's') moveDir.down = false;
-      if (k === 'arrowleft' || k === 'a') moveDir.left = false;
-      if (k === 'arrowright' || k === 'd') moveDir.right = false;
-    });
-
-    // POINTER/TOUCH CONTROLS (Handles multi-finger presses cleanly)
-    document.querySelectorAll('.d-btn').forEach(btn => {
-      const dir = btn.dataset.dir;
-      const start = (e) => {
-        e.preventDefault();
-        moveDir[dir] = true;
-        btn.classList.add('active');
-      };
-      const end = (e) => {
-        e.preventDefault();
-        moveDir[dir] = false;
-        btn.classList.remove('active');
-      };
-
-      btn.addEventListener('pointerdown', start);
-      btn.addEventListener('pointerup', end);
-      btn.addEventListener('pointercancel', end);
-      btn.addEventListener('pointerleave', end);
-    });
-
-    const actBtn = document.getElementById('action-btn');
-    actBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      actBtn.classList.add('active');
-      toggleLight();
-    });
-    actBtn.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      actBtn.classList.remove('active');
-    });
-
-    function toggleLight() {
-      if (gameOver) return;
-      if (battery > 5) {
-        lightOn = !lightOn;
-      }
-    }
-
-    function resetGame() {
-      player.x = 30;
-      player.y = 120;
-      sanity = 100;
-      battery = 100;
-      gameOver = false;
-      won = false;
-      lightOn = false;
-      moveDir = { up: false, down: false, left: false, right: false };
-      initObstacles();
-      spawnShadows();
-      document.getElementById('message').style.display = 'none';
-      document.getElementById('sanityVal').textContent = 100;
-      document.getElementById('batteryVal').textContent = 100;
-    }
-
-    document.getElementById('restartBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      resetGame();
-    });
-
-    function update() {
-      if (gameOver) return;
-      time++;
-
-      let dx = 0, dy = 0;
-      if (moveDir.up) dy -= 1;
-      if (moveDir.down) dy += 1;
-      if (moveDir.left) dx -= 1;
-      if (moveDir.right) dx += 1;
-
-      if (dx !== 0 || dy !== 0) {
-        const len = Math.hypot(dx, dy);
-        dx = (dx / len) * player.speed;
-        dy = (dy / len) * player.speed;
-      }
-
-      let nx = player.x + dx;
-      let ny = player.y + dy;
-      let blocked = false;
-
-      for (const t of trees) {
-        const dist = Math.hypot(nx + player.w / 2 - t.x, ny + player.h / 2 - t.y);
-        if (dist < t.r + 5) { blocked = true; break; }
-      }
-
-      if (!blocked) {
-        player.x = Math.max(4, Math.min(W - player.w - 4, nx));
-        player.y = Math.max(4, Math.min(H - player.h - 4, ny));
-      }
-
-      // Battery logic
-      if (lightOn) {
-        battery -= 0.35;
-        if (battery <= 0) {
-          battery = 0;
-          lightOn = false;
+        if (battle.playerMon.exp >= battle.playerMon.expNext) {
+          battle.playerMon.level++;
+          battle.playerMon.exp -= battle.playerMon.expNext;
+          battle.playerMon.expNext = battle.playerMon.level * battle.playerMon.level * 8;
+          battle.playerMon.maxHp += 5;
+          battle.playerMon.hp = battle.playerMon.maxHp;
+          battle.playerMon.atk += 2;
+          battle.playerMon.def += 2;
+          battle.log.push(`Tahap ${battle.playerMon.level} dicapai!`);
+          audio.levelUp();
         }
-      } else {
-        if (battery < 100) battery += 0.12;
+
+        setTimeout(() => {
+          const winCb = battle ? battle.onWin : null;
+          battle = null;
+          gameState = STATE.OVERWORLD;
+          saveGame();
+          if (winCb) winCb();
+        }, 1200);
+      }, 700);
+      return;
+    }
+
+    setTimeout(executeEnemyTurn, 900);
+  }, 700);
+}
+
+function executeEnemyTurn() {
+  if (!battle || !battle.enemyMon) return;
+  const moveObj = battle.enemyMon.moves[Math.floor(Math.random() * battle.enemyMon.moves.length)];
+  const ref = MOVES[moveObj.name] || MOVES["Scratch"];
+  battle.log = [`${battle.enemyMon.name} musuh guna ${ref.name}!`];
+  audio.hit();
+
+  setTimeout(() => {
+    if (!battle) return;
+    if (ref.power > 0) {
+      const dmg = Math.max(4, Math.floor((battle.enemyMon.atk * ref.power) / (battle.playerMon.def + 8)));
+      battle.playerMon.hp = Math.max(0, battle.playerMon.hp - dmg);
+      battle.log.push(`Karat menerima ${dmg} kerosakan!`);
+    }
+
+    if (battle.playerMon.hp <= 0) {
+      setTimeout(() => {
+        if (!battle) return;
+        battle.log = [`${battle.playerMon.name} keletihan...`];
+        setTimeout(() => {
+          if (battle && battle.playerMon) battle.playerMon.hp = battle.playerMon.maxHp;
+          battle = null;
+          gameState = STATE.OVERWORLD;
+          startDialogue(["Pasukan keletihan. Danial kembali berehat di bangku bengkel."]);
+        }, 1100);
+      }, 600);
+      return;
+    }
+
+    battle.turnState = 'PLAYER_INPUT';
+    battle.log = ["Pilih langkah serangan:"];
+  }, 700);
+}
+
+// --- SPRITE RENDERER ---
+function drawBeast(key, x, y, isBack = false) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  if (key === "KARAT") {
+    ctx.fillStyle = '#69717d';
+    ctx.fillRect(4, 8, 24, 18);
+    ctx.fillStyle = '#945b34';
+    ctx.fillRect(8, 12, 16, 10);
+    ctx.fillStyle = '#1c222e';
+    ctx.fillRect(6, 26, 6, 6);
+    ctx.fillRect(20, 26, 6, 6);
+    ctx.fillStyle = isBack ? '#47536e' : '#00f0ff';
+    if (!isBack) {
+      ctx.fillRect(10, 12, 4, 3);
+      ctx.fillRect(18, 12, 4, 3);
+    }
+  } else if (key === "GETAH") {
+    ctx.fillStyle = '#2d5a3f';
+    ctx.beginPath();
+    ctx.arc(16, 18, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f4ecd8';
+    ctx.fillRect(12, 8, 8, 8);
+  } else if (key === "CENCAL") {
+    ctx.fillStyle = '#2b3345';
+    ctx.fillRect(6, 12, 20, 14);
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillRect(3, 10, 6, 6);
+    ctx.fillRect(23, 10, 6, 6);
+  } else if (key === "LEBURAN") {
+    ctx.fillStyle = '#5c3c24';
+    ctx.fillRect(4, 4, 24, 24);
+    ctx.fillStyle = '#d94b4b';
+    ctx.fillRect(8, 8, 16, 16);
+    ctx.fillStyle = '#d3b15f';
+    ctx.fillRect(12, 12, 8, 8);
+  } else {
+    ctx.fillStyle = '#777';
+    ctx.fillRect(4, 4, 24, 24);
+  }
+  ctx.restore();
+}
+
+// --- UI AND SCENE RENDERING ---
+function drawTitleScreen() {
+  ctx.fillStyle = '#0b0d13';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText("BAYANG-BAYANG", 160, 50);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = '#a3aab5';
+  ctx.fillText("SHADOWS OF PERAK (1998)", 160, 68);
+
+  drawBeast("KARAT", 144, 90, false);
+
+  blinkTimer++;
+  if (Math.floor(blinkTimer / 30) % 2 === 0) {
+    ctx.fillStyle = '#00f0ff';
+    ctx.font = '10px monospace';
+    ctx.fillText("SENTUH SKRIN / TEKAN [A]", 160, 185);
+  }
+
+  ctx.font = '8px monospace';
+  ctx.fillStyle = '#69717d';
+  ctx.fillText("© 1998 PERAK TIN RESEARCH GROUP", 160, 222);
+  ctx.textAlign = 'left';
+}
+
+function drawMainMenu() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10, 10, 300, 220);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '12px monospace';
+  ctx.fillText("PILIHAN UTAMA", 24, 38);
+
+  const opts = [
+    { label: "Mula Baru (New Game)", enabled: true },
+    { label: "Sambung (Continue)", enabled: hasSavedFile },
+    { label: "Tetapan (Settings)", enabled: true }
+  ];
+
+  ctx.font = '11px monospace';
+  opts.forEach((o, idx) => {
+    const isSel = mainMenuIdx === idx;
+    if (!o.enabled) ctx.fillStyle = '#4f5666';
+    else ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+
+    ctx.fillText((isSel ? '▶ ' : '  ') + o.label, 30, 80 + idx * 30);
+  });
+
+  if (hasSavedFile) {
+    ctx.fillStyle = '#a3aab5';
+    ctx.font = '9px monospace';
+    ctx.fillText(`Rekod sedia ada: Danial | Bab ${player.chapter}`, 30, 195);
+  }
+}
+
+function drawSettings() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(10, 10, 300, 220);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '12px monospace';
+  ctx.fillText("TETAPAN SISTEM", 24, 38);
+
+  const speedNames = ["Pantas", "Sederhana", "Perlahan"];
+  const rows = [
+    `Kelajuan Teks  : < ${speedNames[settings.textSpeed]} >`,
+    `Bunyi Audio    : < ${settings.sound ? 'HIDUP' : 'TUTUP'} >`,
+    `Kembali Ke Menu Utama`
+  ];
+
+  ctx.font = '10px monospace';
+  rows.forEach((r, idx) => {
+    const isSel = settingsIdx === idx;
+    ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+    ctx.fillText((isSel ? '▶ ' : '  ') + r, 26, 85 + idx * 32);
+  });
+}
+
+function drawOverworld() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  const camX = Math.max(0, Math.min(MAP_W * TILE_SIZE - 320, player.x * TILE_SIZE - 160));
+  const camY = Math.max(0, Math.min(MAP_H * TILE_SIZE - 240, player.y * TILE_SIZE - 120));
+
+  ctx.save();
+  ctx.translate(-camX, -camY);
+
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const tile = mapData[y * MAP_W + x];
+      const px = x * TILE_SIZE;
+      const py = y * TILE_SIZE;
+
+      if (tile === 0) {
+        ctx.fillStyle = '#222831';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 1) {
+        ctx.fillStyle = '#1c3829';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#2d5a3f';
+        ctx.fillRect(px + 2, py + 2, 12, 12);
+      } else if (tile === 2) {
+        ctx.fillStyle = '#2d5a3f';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 3) {
+        ctx.fillStyle = '#5c3c24';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#d3b15f';
+        ctx.fillRect(px + 4, py + 4, 8, 8);
+      } else if (tile === 4) {
+        ctx.fillStyle = '#2b3345';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 5) {
+        ctx.fillStyle = '#69717d';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
       }
-      document.getElementById('batteryVal').textContent = Math.floor(battery);
+    }
+  }
 
-      // Shadow logic
-      for (const s of shadows) {
-        const dist = Math.hypot(player.x - s.x, player.y - s.y);
+  // Draw Player Avatar
+  const plX = player.x * TILE_SIZE;
+  const plY = player.y * TILE_SIZE;
+  ctx.fillStyle = '#d3b15f';
+  ctx.fillRect(plX + 3, plY + 2, 10, 6);
+  ctx.fillStyle = '#945b34';
+  ctx.fillRect(plX + 2, plY + 8, 12, 8);
 
-        if (lightOn && dist < 80) {
-          const angle = Math.atan2(s.y - player.y, s.x - player.x);
-          s.vx += Math.cos(angle) * 0.08;
-          s.vy += Math.sin(angle) * 0.08;
+  ctx.restore();
+
+  // Top Tracker Bar
+  ctx.fillStyle = 'rgba(18, 20, 29, 0.9)';
+  ctx.fillRect(4, 4, 160, 22);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(4, 4, 160, 22);
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '9px monospace';
+  ctx.fillText(`BAB ${player.chapter}: Pekan Timah`, 8, 18);
+
+  if (hudNoticeTimer > 0) {
+    hudNoticeTimer--;
+    ctx.fillStyle = '#2d5a3f';
+    ctx.fillRect(174, 4, 140, 22);
+    ctx.strokeStyle = '#d3b15f';
+    ctx.strokeRect(174, 4, 140, 22);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(hudNotice, 182, 18);
+  }
+}
+
+function drawPauseMenu() {
+  drawOverworld();
+  ctx.fillStyle = 'rgba(18, 20, 29, 0.96)';
+  ctx.fillRect(180, 20, 130, 195);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(180, 20, 130, 195);
+
+  const list = [
+    "1. Raksasa",
+    "2. Beg Poket",
+    "3. Danial (ID)",
+    "4. Simpan",
+    "5. Keluar Menu"
+  ];
+
+  ctx.font = '10px monospace';
+  list.forEach((item, idx) => {
+    const isSel = pauseMenuIdx === idx;
+    ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+    ctx.fillText((isSel ? '▶' : ' ') + item, 188, 48 + idx * 30);
+  });
+}
+
+function drawPartyView() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(8, 8, 304, 224);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '11px monospace';
+  ctx.fillText("PASUKAN RAKSASA DANIAL", 18, 28);
+
+  if (!player.party || player.party.length === 0) {
+    ctx.fillStyle = '#a3aab5';
+    ctx.fillText("Belum ada raksasa menyertai.", 24, 70);
+  } else {
+    player.party.forEach((p, idx) => {
+      const isSel = partyMenuIdx === idx;
+      ctx.fillStyle = isSel ? 'rgba(0, 240, 255, 0.15)' : '#181d28';
+      ctx.fillRect(18, 44 + idx * 72, 284, 64);
+      ctx.strokeStyle = isSel ? '#00f0ff' : '#69717d';
+      ctx.strokeRect(18, 44 + idx * 72, 284, 64);
+
+      drawBeast(p.speciesKey, 24, 52 + idx * 72);
+
+      ctx.fillStyle = '#f4ecd8';
+      ctx.font = '10px monospace';
+      ctx.fillText(`${p.name}  Lv.${p.level} [${p.type}]`, 68, 62 + idx * 72);
+      ctx.fillText(`HP: ${p.hp}/${p.maxHp}  EXP: ${p.exp}/${p.expNext}`, 68, 78 + idx * 72);
+
+      const mNames = (p.moves || []).map(m => `${m.name}(${m.pp})`).join(" ");
+      ctx.fillStyle = '#a3aab5';
+      ctx.font = '8px monospace';
+      ctx.fillText(mNames, 68, 94 + idx * 72);
+    });
+  }
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '9px monospace';
+  ctx.fillText("[B]: Kembali Ke Menu", 18, 220);
+}
+
+function drawBagView() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(8, 8, 304, 224);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '11px monospace';
+  ctx.fillText("BEG GALAS DANIAL", 18, 28);
+
+  player.bag.forEach((it, idx) => {
+    const isSel = bagMenuIdx === idx;
+    ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+    ctx.font = '10px monospace';
+    ctx.fillText((isSel ? '▶ ' : '  ') + `${it.name} x${it.count}`, 24, 60 + idx * 26);
+  });
+
+  const selItem = player.bag[bagMenuIdx];
+  if (selItem) {
+    ctx.fillStyle = '#181d28';
+    ctx.fillRect(18, 145, 284, 55);
+    ctx.strokeStyle = '#d3b15f';
+    ctx.strokeRect(18, 145, 284, 55);
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '9px monospace';
+    ctx.fillText(selItem.desc, 26, 175);
+  }
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '9px monospace';
+  ctx.fillText("[A]: Guna Barangan | [B]: Kembali", 18, 220);
+}
+
+function drawDialogueBox() {
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(8, 160, 304, 72);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(8, 160, 304, 72);
+
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '10px monospace';
+  const text = dialogueLines[dialogueIdx] || '';
+  
+  const words = text.split(" ");
+  let l1 = "";
+  let l2 = "";
+  for (let i = 0; i < words.length; i++) {
+    if (i < 6) l1 += words[i] + " ";
+    else l2 += words[i] + " ";
+  }
+  ctx.fillText(l1, 16, 184);
+  ctx.fillText(l2, 16, 204);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.fillText('[A] Seterusnya ▶', 190, 224);
+}
+
+function drawChoiceBox() {
+  drawDialogueBox();
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(140, 85, 170, 70);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(140, 85, 170, 70);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = activeChoice.selected === 0 ? '#00f0ff' : '#f4ecd8';
+  ctx.fillText((activeChoice.selected === 0 ? '▶ ' : '  ') + activeChoice.optA, 146, 112);
+
+  ctx.fillStyle = activeChoice.selected === 1 ? '#00f0ff' : '#f4ecd8';
+  ctx.fillText((activeChoice.selected === 1 ? '▶ ' : '  ') + activeChoice.optB, 146, 138);
+}
+
+function drawBattle() {
+  if (!battle) return;
+  ctx.fillStyle = '#1a1f2c';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.fillStyle = '#2d5a3f';
+  ctx.beginPath();
+  ctx.ellipse(230, 80, 50, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.ellipse(80, 145, 55, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawBeast(battle.enemyMon.speciesKey, 215, 52, false);
+  drawBeast(battle.playerMon.speciesKey, 65, 115, true);
+
+  // Enemy Box
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(10, 8, 140, 38);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(10, 8, 140, 38);
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '9px monospace';
+  ctx.fillText(`${battle.enemyMon.name} Lv.${battle.enemyMon.level}`, 16, 22);
+  const eHpPct = Math.max(0, battle.enemyMon.hp / battle.enemyMon.maxHp);
+  ctx.fillStyle = '#333';
+  ctx.fillRect(16, 28, 120, 6);
+  ctx.fillStyle = '#d94b4b';
+  ctx.fillRect(16, 28, Math.floor(120 * eHpPct), 6);
+
+  // Player Box
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(170, 105, 140, 46);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(170, 105, 140, 46);
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '9px monospace';
+  ctx.fillText(`${battle.playerMon.name} Lv.${battle.playerMon.level}`, 176, 120);
+  const pHpPct = Math.max(0, battle.playerMon.hp / battle.playerMon.maxHp);
+  ctx.fillStyle = '#333';
+  ctx.fillRect(176, 126, 120, 6);
+  ctx.fillStyle = '#2d5a3f';
+  ctx.fillRect(176, 126, Math.floor(120 * pHpPct), 6);
+  ctx.fillText(`${battle.playerMon.hp}/${battle.playerMon.maxHp} HP`, 176, 144);
+
+  // Command Area
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(6, 160, 308, 74);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(6, 160, 308, 74);
+
+  if (battle.turnState === 'PLAYER_INPUT') {
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '9px monospace';
+    battle.playerMon.moves.forEach((m, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const isSel = battle.menuIdx === idx;
+      ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+      ctx.fillText((isSel ? '▶ ' : '  ') + `${m.name} [${m.pp}/${m.maxPp}]`, 16 + col * 145, 184 + row * 22);
+    });
+  } else {
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '10px monospace';
+    (battle.log || []).forEach((l, i) => {
+      ctx.fillText(l, 16, 184 + i * 18);
+    });
+  }
+}
+
+function drawEnding() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText("TAMAT: FAJAR LEMBAH KINTA", 160, 48);
+
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#f4ecd8';
+  ctx.fillText("Tauke Razak telah ditangkap pihak berkuasa.", 160, 80);
+  ctx.fillText("Lombong Timah Hitam selamat ditenggelamkan.", 160, 98);
+  ctx.fillText("Farah selamat, dan Pekan Timah kembali aman.", 160, 116);
+
+  drawBeast("KARAT", 144, 134, false);
+
+  ctx.fillStyle = '#2d5a3f';
+  ctx.fillRect(50, 182, 220, 26);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(50, 182, 220, 26);
+  ctx.fillStyle = '#fff';
+  ctx.font = '10px monospace';
+  ctx.fillText("TEKAN [A]: KEMBALI KE MENU", 160, 199);
+  ctx.textAlign = 'left';
+}
+
+// --- MAIN LOOP ---
+function gameLoop() {
+  ctx.clearRect(0, 0, 320, 240);
+
+  switch (gameState) {
+    case STATE.TITLE_SCREEN:
+      drawTitleScreen();
+      break;
+    case STATE.MAIN_MENU:
+      drawMainMenu();
+      break;
+    case STATE.SETTINGS:
+      drawSettings();
+      break;
+    case STATE.OVERWORLD:
+      drawOverworld();
+      break;
+    case STATE.PAUSE_MENU:
+      drawPauseMenu();
+      break;
+    case STATE.PARTY_VIEW:
+      drawPartyView();
+      break;
+    case STATE.BAG_VIEW:
+      drawBagView();
+      break;
+    case STATE.DIALOGUE:
+      drawOverworld();
+      drawDialogueBox();
+      break;
+    case STATE.CHOICE:
+      drawOverworld();
+      drawChoiceBox();
+      break;
+    case STATE.BATTLE:
+      drawBattle();
+      break;
+    case STATE.ENDING:
+      drawEnding();
+      break;
+  }
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+
+// --- INPUT LOGIC ---
+function handleInputA() {
+  audio.init();
+
+  if (gameState === STATE.TITLE_SCREEN) {
+    audio.select();
+    checkExistingSave();
+    gameState = STATE.MAIN_MENU;
+    mainMenuIdx = hasSavedFile ? 1 : 0;
+  } else if (gameState === STATE.MAIN_MENU) {
+    audio.select();
+    if (mainMenuIdx === 0) {
+      player.x = 5;
+      player.y = 6;
+      player.party = [];
+      player.hasKarat = false;
+      player.chapter = 1;
+      gameState = STATE.OVERWORLD;
+      startDialogue([
+        "Danial tiba di bengkel tinggalan arwah datuk di Pekan Timah.",
+        "Khabar angin mengatakan Farah hilang di tapak kuari semalam.",
+        "Siasat meja bengkel di atas [KOTAK COKLAT] untuk mencari petunjuk!"
+      ]);
+    } else if (mainMenuIdx === 1 && hasSavedFile) {
+      loadGame();
+      gameState = STATE.OVERWORLD;
+      hudNotice = "Permainan Disambung!";
+      hudNoticeTimer = 70;
+    } else if (mainMenuIdx === 2) {
+      gameState = STATE.SETTINGS;
+      settingsIdx = 0;
+    }
+  } else if (gameState === STATE.SETTINGS) {
+    audio.select();
+    if (settingsIdx === 2) {
+      saveGame();
+      gameState = STATE.MAIN_MENU;
+    }
+  } else if (gameState === STATE.PAUSE_MENU) {
+    audio.select();
+    if (pauseMenuIdx === 0) {
+      gameState = STATE.PARTY_VIEW;
+      partyMenuIdx = 0;
+    } else if (pauseMenuIdx === 1) {
+      gameState = STATE.BAG_VIEW;
+      bagMenuIdx = 0;
+    } else if (pauseMenuIdx === 2) {
+      startDialogue([
+        `KAD ID: ${player.name} | Langkah: ${player.steps}`,
+        `Bab Semasa: ${player.chapter} | Raksasa: ${player.party.length}/2`
+      ]);
+    } else if (pauseMenuIdx === 3) {
+      saveGame();
+      gameState = STATE.OVERWORLD;
+    } else if (pauseMenuIdx === 4) {
+      gameState = STATE.OVERWORLD;
+    }
+  } else if (gameState === STATE.BAG_VIEW) {
+    const it = player.bag[bagMenuIdx];
+    if (it && it.count > 0 && player.party.length > 0) {
+      audio.select();
+      it.count--;
+      if (it.heal) {
+        player.party[0].hp = Math.min(player.party[0].maxHp, player.party[0].hp + it.heal);
+        startDialogue([`${it.name} digunakan! ${player.party[0].name} pulih 25 HP.`]);
+      } else if (it.restorePp) {
+        player.party[0].moves.forEach(m => m.pp = m.maxPp);
+        startDialogue([`Kopi O Panas dihirup! Semua PP langkah dipulihkan penuh.`]);
+      }
+    } else {
+      audio.beep(320, 0.05);
+    }
+  } else if (gameState === STATE.DIALOGUE) {
+    dialogueIdx++;
+    audio.beep(850, 0.03);
+    if (dialogueIdx >= dialogueLines.length) {
+      gameState = STATE.OVERWORLD;
+      if (dialogueCallback) {
+        const cb = dialogueCallback;
+        dialogueCallback = null;
+        cb();
+      }
+    }
+  } else if (gameState === STATE.CHOICE) {
+    audio.select();
+    const chosen = activeChoice.selected;
+    const cb = activeChoice.callback;
+    activeChoice = null;
+    gameState = STATE.OVERWORLD;
+    if (cb) cb(chosen);
+  } else if (gameState === STATE.BATTLE) {
+    if (battle && battle.turnState === 'PLAYER_INPUT') {
+      audio.select();
+      executePlayerMove(battle.menuIdx);
+    }
+  } else if (gameState === STATE.ENDING) {
+    audio.select();
+    gameState = STATE.MAIN_MENU;
+  }
+}
+
+function handleInputB() {
+  audio.init();
+  if (gameState === STATE.OVERWORLD) {
+    pauseMenuIdx = 0;
+    gameState = STATE.PAUSE_MENU;
+    audio.select();
+  } else if (gameState === STATE.PAUSE_MENU || gameState === STATE.PARTY_VIEW || gameState === STATE.BAG_VIEW) {
+    gameState = STATE.OVERWORLD;
+    audio.beep(400, 0.04);
+  } else if (gameState === STATE.SETTINGS) {
+    gameState = STATE.MAIN_MENU;
+    audio.beep(400, 0.04);
+  }
+}
+
+function handleMove(dir) {
+  audio.init();
+
+  if (gameState === STATE.MAIN_MENU) {
+    if (dir === 'up') mainMenuIdx = Math.max(0, mainMenuIdx - 1);
+    if (dir === 'down') mainMenuIdx = Math.min(2, mainMenuIdx + 1);
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.SETTINGS) {
+    if (dir === 'up') settingsIdx = Math.max(0, settingsIdx - 1);
+    if (dir === 'down') settingsIdx = Math.min(2, settingsIdx + 1);
+    if (dir === 'left' || dir === 'right') {
+      if (settingsIdx === 0) settings.textSpeed = (settings.textSpeed + 1) % 3;
+      if (settingsIdx === 1) {
+        settings.sound = !settings.sound;
+        audio.soundOn = settings.sound;
+      }
+    }
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.PAUSE_MENU) {
+    if (dir === 'up') pauseMenuIdx = Math.max(0, pauseMenuIdx - 1);
+    if (dir === 'down') pauseMenuIdx = Math.min(4, pauseMenuIdx + 1);
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.BAG_VIEW) {
+    if (dir === 'up') bagMenuIdx = Math.max(0, bagMenuIdx - 1);
+    if (dir === 'down') bagMenuIdx = Math.min(player.bag.length - 1, bagMenuIdx + 1);
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.CHOICE) {
+    if (dir === 'up') activeChoice.selected = 0;
+    if (dir === 'down') activeChoice.selected = 1;
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.BATTLE) {
+    if (battle && battle.turnState === 'PLAYER_INPUT') {
+      if (dir === 'left') battle.menuIdx = Math.max(0, battle.menuIdx - 1);
+      if (dir === 'right') battle.menuIdx = Math.min(battle.playerMon.moves.length - 1, battle.menuIdx + 1);
+      if (dir === 'up') battle.menuIdx = Math.max(0, battle.menuIdx - 2);
+      if (dir === 'down') battle.menuIdx = Math.min(battle.playerMon.moves.length - 1, battle.menuIdx + 2);
+      audio.select();
+    }
+    return;
+  }
+
+  if (gameState !== STATE.OVERWORLD) return;
+
+  let nx = player.x;
+  let ny = player.y;
+
+  if (dir === 'up') ny--;
+  if (dir === 'down') ny++;
+  if (dir === 'left') nx--;
+  if (dir === 'right') nx++;
+
+  if (!isSolid(nx, ny)) {
+    player.x = nx;
+    player.y = ny;
+    player.steps++;
+    audio.beep(240, 0.02);
+    checkTriggers();
+  }
+}
+
+function checkTriggers() {
+  if (player.x === 2 && player.y === 2 && !player.hasKarat) {
+    player.hasKarat = true;
+    player.party.push(createMonster("KARAT", 5));
+    saveGame();
+    startDialogue([
+      "Danial membuka laci meja dan menjumpai kompas tembaga datuk!",
+      "Karat, anjing mekanikal berkarat milik datuk terbangun!",
+      "Karat menyertai pasukan! Sekarang keluar ke kebun getah di kanan."
+    ]);
+  }
+
+  if (player.hasKarat && player.x >= 10 && player.x <= 12 && player.y === 2 && player.chapter === 1) {
+    player.chapter = 2;
+    startDialogue([
+      "Di tepi parit kebun getah, terdapat dua kelibat aneh!",
+      "Seekor Getah terperangkap di mangkuk getah.",
+      "Seekor Cencal sedang mengacah di bibir parit air!"
+    ], () => {
+      startChoice("Pilih rakan kedua:", "Bantu GETAH (Flora)", "Tangkap CENCAL (Water)", (choice) => {
+        if (choice === 0) {
+          player.party.push(createMonster("GETAH", 5));
+          saveGame();
+          startDialogue(["Getah menyertai pasukan!", "Terus mara ke pintu gua kapur di hujung timur!"]);
         } else {
-          const angle = Math.atan2(player.y - s.y, player.x - s.x);
-          s.vx += Math.cos(angle) * 0.02;
-          s.vy += Math.sin(angle) * 0.02;
+          player.party.push(createMonster("CENCAL", 5));
+          saveGame();
+          startDialogue(["Cencal menyertai pasukan!", "Terus mara ke pintu gua kapur di hujung timur!"]);
         }
+      });
+    });
+  }
 
-        const spd = Math.hypot(s.vx, s.vy);
-        const maxSpd = lightOn ? 1.6 : 0.9;
-        if (spd > maxSpd) {
-          s.vx = (s.vx / spd) * maxSpd;
-          s.vy = (s.vy / spd) * maxSpd;
-        }
+  if (player.chapter === 2 && player.x >= 16 && player.y >= 11) {
+    player.chapter = 3;
+    startDialogue([
+      "Anda temui Farah di dalam gua!",
+      "Farah: 'Danial! Ayah saya nak musnahkan gua lombong ini!'",
+      "Tauke Razak muncul bersama raksasa pelebur, LEBURAN!"
+    ], () => {
+      startBattle("LEBURAN", 8, () => {
+        gameState = STATE.ENDING;
+      });
+    });
+  }
+}
 
-        s.x += s.vx;
-        s.y += s.vy;
+// Tap screen to press [A]
+document.getElementById('viewport-container').addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  handleInputA();
+});
 
-        if (s.x < 10 || s.x > W - 10) s.vx *= -1;
-        if (s.y < 10 || s.y > H - 10) s.vy *= -1;
+// KEYBOARD HANDLING
+window.addEventListener('keydown', (e) => {
+  const k = e.key;
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Enter'].includes(k)) e.preventDefault();
 
-        if (dist < 45) {
-          sanity -= lightOn ? 0.04 : 0.22;
-        }
-        if (dist < 15) {
-          sanity -= 1.0;
-        }
-      }
+  if (k === 'ArrowUp' || k === 'w' || k === 'W') handleMove('up');
+  else if (k === 'ArrowDown' || k === 's' || k === 'S') handleMove('down');
+  else if (k === 'ArrowLeft') handleMove('left');
+  else if (k === 'ArrowRight' || k === 'd' || k === 'D') handleMove('right');
+  else if (k === 'z' || k === 'Z' || k === 'j' || k === 'J' || k === ' ' || k === 'Enter') handleInputA();
+  else if (k === 'x' || k === 'X' || k === 'k' || k === 'K' || k === 'Escape') handleInputB();
+  else if (k === 'm' || k === 'M') handleInputB();
+});
 
-      sanity = Math.max(0, Math.min(100, sanity));
-      document.getElementById('sanityVal').textContent = Math.floor(sanity);
+// TOUCH D-PAD WITH HOLD-TO-WALK REPEAT
+let dpadTimer = null;
+const bindDpad = (id, dir) => {
+  const el = document.getElementById(id);
+  if (!el) return;
 
-      if (sanity <= 0) {
-        gameOver = true;
-        document.getElementById('msgTitle').textContent = 'TEWAS';
-        document.getElementById('msgBody').textContent = 'Bayang-bayang telah menelan kewarasan kamu.';
-        document.getElementById('message').style.display = 'block';
-      }
+  const start = (e) => {
+    e.preventDefault();
+    el.classList.add('active');
+    handleMove(dir);
+    clearInterval(dpadTimer);
+    dpadTimer = setInterval(() => {
+      handleMove(dir);
+    }, 180);
+  };
 
-      if (player.x + player.w > exit.x && player.x < exit.x + exit.w &&
-          player.y + player.h > exit.y && player.y < exit.y + exit.h) {
-        gameOver = true;
-        won = true;
-        document.getElementById('msgTitle').textContent = 'TERLEPAS!';
-        document.getElementById('msgBody').textContent = 'Kamu berjaya keluar ke kawasan yang selamat!';
-        document.getElementById('message').style.display = 'block';
-      }
-    }
+  const end = (e) => {
+    e.preventDefault();
+    el.classList.remove('active');
+    clearInterval(dpadTimer);
+  };
 
-    function draw() {
-      ctx.fillStyle = '#0a0c12';
-      ctx.fillRect(0, 0, W, H);
+  el.addEventListener('pointerdown', start);
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+  el.addEventListener('pointerleave', end);
+};
 
-      // Grass texture
-      ctx.fillStyle = '#12151c';
-      for (let i = 0; i < 30; i++) {
-        ctx.fillRect((i * 41) % W, (i * 29) % H, 2, 2);
-      }
+bindDpad('btn-up', 'up');
+bindDpad('btn-down', 'down');
+bindDpad('btn-left', 'left');
+bindDpad('btn-right', 'right');
 
-      // Trees
-      for (const t of trees) {
-        ctx.fillStyle = '#181e28';
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0d1016';
-        ctx.beginPath();
-        ctx.arc(t.x - 2, t.y - 2, t.r * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-      }
+// ACTION BUTTONS
+const bindBtn = (id, fn) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    el.classList.add('active');
+    fn();
+  });
+  el.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    el.classList.remove('active');
+  });
+  el.addEventListener('pointercancel', () => el.classList.remove('active'));
+};
 
-      // Exit Gateway
-      const glow = Math.sin(time * 0.1) * 3;
-      ctx.fillStyle = '#3a4a2a';
-      ctx.fillRect(exit.x - 2, exit.y - 2, exit.w + 4, exit.h + 4);
-      ctx.fillStyle = '#d3b15f';
-      ctx.fillRect(exit.x, exit.y, exit.w, exit.h);
-      ctx.fillStyle = '#fff4cc';
-      ctx.fillRect(exit.x + 4 - glow/2, exit.y + 4 - glow/2, exit.w - 8 + glow, exit.h - 8 + glow);
-
-      // Shadows
-      for (const s of shadows) {
-        const pulse = Math.sin(time * 0.1 + s.x) * 2;
-        ctx.fillStyle = lightOn ? 'rgba(35, 25, 45, 0.4)' : 'rgba(12, 6, 20, 0.9)';
-        ctx.beginPath();
-        ctx.ellipse(s.x, s.y, s.size + pulse, s.size * 0.7 + pulse * 0.4, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (!lightOn) {
-          ctx.fillStyle = '#ff2a4a';
-          ctx.fillRect(s.x - 3, s.y - 2, 2, 2);
-          ctx.fillRect(s.x + 2, s.y - 2, 2, 2);
-        }
-      }
-
-      // Player
-      ctx.fillStyle = lightOn ? '#f4ecd8' : '#a39268';
-      ctx.fillRect(player.x, player.y, player.w, player.h);
-      ctx.fillStyle = '#d3b15f';
-      ctx.fillRect(player.x + 2, player.y - 4, 6, 5);
-
-      // Flashlight Cone
-      if (lightOn) {
-        const grd = ctx.createRadialGradient(
-          player.x + 5, player.y + 5, 4,
-          player.x + 5, player.y + 5, 80
-        );
-        grd.addColorStop(0, 'rgba(211,177,95,0.35)');
-        grd.addColorStop(0.7, 'rgba(211,177,95,0.1)');
-        grd.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      // Vignette
-      const vig = ctx.createRadialGradient(player.x + 5, player.y + 5, lightOn ? 70 : 25, player.x + 5, player.y + 5, 180);
-      vig.addColorStop(0, 'rgba(0,0,0,0)');
-      vig.addColorStop(1, 'rgba(5,6,9,0.92)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    function loop() {
-      update();
-      draw();
-      requestAnimationFrame(loop);
-    }
-    loop();
-  </script>
+bindBtn('btn-a', () => handleInputA());
+bindBtn('btn-b', () => handleInputB());
+bindBtn('btn-menu', () => handleInputB());
+</script>
 </body>
 </html>
