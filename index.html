@@ -1,1252 +1,1342 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Bayang-Bayang: Shadows of Perak</title>
-<style>
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-user-select: none;
--webkit-user-select: none;
-touch-action: manipulation;
-}
-body {
-background-color: #0e1117;
-color: #f4ecd8;
-font-family: 'Courier New', Courier, monospace;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-overflow-x: hidden;
-padding: 8px 6px max(10px, env(safe-area-inset-bottom));
--webkit-tap-highlight-color: transparent;
-}
-#viewport-container {
-position: relative;
-display: flex;
-flex-direction: column;
-align-items: center;
-background: #12141d;
-border: 4px solid #d3b15f;
-border-radius: 8px;
-box-shadow: 0 10px 30px rgba(0,0,0,0.85), 0 0 15px rgba(211,177,95,0.25);
-padding: 4px;
-}
-canvas#gameCanvas {
-width: 640px;
-height: 480px;
-max-width: 95vw;
-max-height: 52vh;
-aspect-ratio: 4/3;
-image-rendering: -moz-crisp-edges;
-image-rendering: -webkit-crisp-edges;
-image-rendering: pixelated;
-image-rendering: crisp-edges;
-background-color: #050608;
-display: block;
-border-radius: 4px;
-}
-#touch-controls {
-display: none;
-width: 100%;
-max-width: 640px;
-margin-top: 10px;
-justify-content: space-between;
-align-items: center;
-padding: 4px 10px;
-}
-@media (hover: none) and (pointer: coarse), (max-width: 820px) {
-#touch-controls { display: flex; }
-canvas#gameCanvas { max-height: 44vh; }
-}
-.dpad {
-position: relative;
-width: 130px;
-height: 130px;
-}
-.d-btn {
-position: absolute;
-width: 42px;
-height: 42px;
-background: #232a39;
-border: 2px solid #5b6577;
-border-radius: 8px;
-color: #d3b15f;
-font-weight: bold;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 16px;
-box-shadow: 0 4px 0 #10131a;
-cursor: pointer;
-}
-.d-btn:active {
-background: #3b465c;
-transform: translateY(2px);
-box-shadow: 0 2px 0 #10131a;
-}
-#btn-up { top: 0; left: 44px; }
-#btn-down { bottom: 0; left: 44px; }
-#btn-left { top: 44px; left: 0; }
-#btn-right { top: 44px; right: 0; }
-.d-center {
-position: absolute;
-top: 44px;
-left: 44px;
-width: 42px;
-height: 42px;
-background: #171b24;
-}
-.center-cluster {
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 6px;
-}
-.util-btn {
-background: #1c222e;
-border: 2px solid #69717d;
-color: #d3b15f;
-font-size: 11px;
-font-weight: bold;
-padding: 6px 12px;
-border-radius: 12px;
-box-shadow: 0 3px 0 #0d1017;
-cursor: pointer;
-}
-.util-btn:active {
-transform: translateY(2px);
-box-shadow: 0 1px 0 #0d1017;
-background: #2b3345;
-}
-.action-cluster {
-display: flex;
-gap: 14px;
-align-items: center;
-transform: rotate(-8deg);
-}
-.act-btn {
-width: 56px;
-height: 56px;
-border-radius: 50%;
-color: #fff;
-font-size: 18px;
-font-weight: 900;
-display: flex;
-justify-content: center;
-align-items: center;
-cursor: pointer;
-border: 3px solid #d3b15f;
-}
-#btn-b {
-background: #945b34;
-box-shadow: 0 5px 0 #4a2813;
-}
-#btn-b:active {
-background: #b87545;
-transform: translateY(3px);
-box-shadow: 0 2px 0 #4a2813;
-}
-#btn-a {
-background: #2d5a3f;
-box-shadow: 0 5px 0 #142e1f;
-margin-bottom: 18px;
-}
-#btn-a:active {
-background: #3f7d58;
-transform: translateY(3px);
-box-shadow: 0 2px 0 #142e1f;
-}
-.instructions {
-font-size: 11px;
-color: #9aa5b8;
-margin-top: 8px;
-text-align: center;
-line-height: 1.5;
-}
-.instructions span {
-color: #d3b15f;
-}
-/* MODAL POPUPS */
-#kopi-modal {
-display: none;
-position: fixed;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background: rgba(8, 10, 14, 0.92);
-z-index: 100;
-justify-content: center;
-align-items: center;
-padding: 16px;
-}
-.modal-card {
-background: #12141d;
-border: 3px solid #d3b15f;
-border-radius: 8px;
-padding: 18px;
-max-width: 400px;
-width: 100%;
-text-align: center;
-box-shadow: 0 0 25px rgba(211, 177, 95, 0.35);
-}
-.modal-card h2 {
-color: #d3b15f;
-font-size: 17px;
-margin-bottom: 8px;
-}
-.modal-card p {
-font-size: 12px;
-line-height: 1.45;
-color: #f4ecd8;
-margin-bottom: 12px;
-}
-.qr-box {
-background: #fff;
-padding: 10px;
-display: inline-block;
-border-radius: 8px;
-margin-bottom: 10px;
-border: 2px solid #5c3c24;
-}
-.modal-btns {
-display: flex;
-flex-direction: column;
-gap: 8px;
-}
-.m-btn {
-background: #2d5a3f;
-border: 2px solid #d3b15f;
-color: #fff;
-padding: 10px 12px;
-font-weight: bold;
-border-radius: 6px;
-cursor: pointer;
-font-size: 13px;
-text-decoration: none;
-display: block;
-}
-.m-btn.alt {
-background: #945b34;
-}
-.m-btn:active {
-filter: brightness(1.2);
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bayang-Bayang: Shadows of Perak</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    body {
+      background-color: #0b0d13;
+      color: #f4ecd8;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 6px;
+    }
+    #viewport-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #12141d;
+      border: 4px solid #d3b15f;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 18px rgba(211,177,95,0.25);
+      padding: 4px;
+    }
+    canvas#gameCanvas {
+      width: 640px;
+      height: 480px;
+      max-width: 95vw;
+      max-height: 52vh;
+      aspect-ratio: 4/3;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background-color: #000;
+      display: block;
+      border-radius: 4px;
+    }
+    #touch-controls {
+      display: flex;
+      width: 100%;
+      max-width: 640px;
+      margin-top: 10px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 14px;
+    }
+    .dpad {
+      position: relative;
+      width: 130px;
+      height: 130px;
+    }
+    .d-btn {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      background: #2b3345;
+      border: 2px solid #69717d;
+      border-radius: 8px;
+      color: #d3b15f;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      box-shadow: 0 4px 0 #12141d;
+      cursor: pointer;
+    }
+    .d-btn:active {
+      background: #47536e;
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #12141d;
+    }
+    #btn-up { top: 0; left: 44px; }
+    #btn-down { bottom: 0; left: 44px; }
+    #btn-left { top: 44px; left: 0; }
+    #btn-right { top: 44px; right: 0; }
+    .d-center {
+      position: absolute;
+      top: 44px;
+      left: 44px;
+      width: 42px;
+      height: 42px;
+      background: #1c222e;
+    }
+    .mid-cluster {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .aux-btn {
+      background: #2b3345;
+      border: 2px solid #d3b15f;
+      color: #d3b15f;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 12px;
+      box-shadow: 0 3px 0 #12141d;
+      cursor: pointer;
+    }
+    .aux-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #12141d;
+    }
+    .action-cluster {
+      display: flex;
+      gap: 16px;
+      transform: rotate(-10deg);
+    }
+    .act-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #945b34;
+      border: 3px solid #d3b15f;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 5px 0 #4a2813;
+      cursor: pointer;
+    }
+    .act-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #4a2813;
+      background: #b87545;
+    }
+    #btn-a { margin-bottom: 22px; background: #2d5a3f; box-shadow: 0 5px 0 #142e1f; }
+    #btn-a:active { background: #3f7d58; box-shadow: 0 2px 0 #142e1f; }
+    .instructions {
+      font-size: 11px;
+      color: #8892b0;
+      margin-top: 6px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-<div id="viewport-container">
-<canvas id="gameCanvas" width="320" height="240"></canvas>
-</div>
-<div class="instructions">
-[Desktop]: <span>WASD / Panah</span>: Bergerak | <span>Z / Enter</span>: [A] Butang | <span>X / Esc</span>: [B] Menu/Batal
 
-[Mobile]: Guna <span>D-Pad</span> & butang <span>[A]</span>, <span>[B]</span>, <span>[MENU]</span> di bawah. Permainan disimpan secara <span>Auto-Save</span>.
-</div>
-<div id="touch-controls">
-<div class="dpad">
-<div class="d-btn" id="btn-up">▲</div>
-<div class="d-btn" id="btn-down">▼</div>
-<div class="d-btn" id="btn-left">◀</div>
-<div class="d-btn" id="btn-right">▶</div>
-<div class="d-center"></div>
-</div>
-<div class="center-cluster">
-<button type="button" class="util-btn" id="btn-menu">MENU / SAVE</button>
-</div>
-<div class="action-cluster">
-<div class="act-btn" id="btn-b">B</div>
-<div class="act-btn" id="btn-a">A</div>
-</div>
-</div>
-<!-- Modal Belanja Kopi / DuitNow QR -->
-<div id="kopi-modal">
-<div class="modal-card">
-<h2>BELANJA KOPI / SOKONGAN</h2>
-<p>Tahniah kerana menamatkan Bayang-Bayang! Jika anda terhibur dengan kisah misteri lombong Lembah Kinta ini, jom belanja kopi RM3 untuk sokong sambungan Bab 2.</p>
-<div class="qr-box">
-<canvas id="qrCanvas" width="160" height="160"></canvas>
-</div>
-<p style="font-size: 11px; color:#d3b15f;">DuitNow QR: Scan guna Maybank MAE, TNG eWallet, CIMB, atau perbankan Malaysia pilihan anda.</p>
-<div class="modal-btns">
-<a class="m-btn" href="https://ko-fi.com" target="_blank" rel="noopener">Belanja Melalui Ko-fi / Kad Bank</a>
-<button type="button" class="m-btn alt" id="btn-close-modal">Kembali ke Permainan</button>
-</div>
-</div>
-</div>
+  <div id="viewport-container">
+    <canvas id="gameCanvas" width="320" height="240"></canvas>
+  </div>
+
+  <div class="instructions">
+    [Keyboard]: WASD / Panah: Gerak | Z / Enter: [A] Sahkan | X / Esc: [B] Batal | M: Menu
+  </div>
+
+  <div id="touch-controls">
+    <div class="dpad">
+      <div class="d-btn" id="btn-up">▲</div>
+      <div class="d-btn" id="btn-down">▼</div>
+      <div class="d-btn" id="btn-left">◀</div>
+      <div class="d-btn" id="btn-right">▶</div>
+      <div class="d-center"></div>
+    </div>
+    
+    <div class="mid-cluster">
+      <div class="aux-btn" id="btn-menu">MENU [B]</div>
+    </div>
+
+    <div class="action-cluster">
+      <div class="act-btn" id="btn-b">B</div>
+      <div class="act-btn" id="btn-a">A</div>
+    </div>
+  </div>
+
 <script>
-/
- BAYANG-BAYANG: SHADOWS OF PERAK
- Robust Single-File 2D Engine with Auto-Save & In-Game Menu
-*/
-// --- 1. RETRO AUDIO SYNTHESIZER ---
+// --- SAFE STORAGE WRAPPER ---
+const Storage = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch(e) { return null; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, val); } catch(e) {}
+  }
+};
+
+// --- AUDIO SYNTHESIZER ---
 class RetroAudio {
-constructor() {
-this.ctx = null;
-this.enabled = false;
-}
-init() {
-if (!this.ctx) {
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-if (AudioCtx) {
-this.ctx = new AudioCtx();
-this.enabled = true;
-}
-}
-if (this.ctx && this.ctx.state === 'suspended') {
-this.ctx.resume();
-}
-}
-beep(freq = 750, dur = 0.04) {
-if (!this.enabled || !this.ctx) return;
-try {
-const osc = this.ctx.createOscillator();
-const gain = this.ctx.createGain();
-osc.type = 'square';
-osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
-osc.connect(gain);
-gain.connect(this.ctx.destination);
-osc.start();
-osc.stop(this.ctx.currentTime + dur);
-} catch(e) {}
-}
-select() {
-if (!this.enabled || !this.ctx) return;
-try {
-const now = this.ctx.currentTime;
-const osc = this.ctx.createOscillator();
-const gain = this.ctx.createGain();
-osc.type = 'square';
-osc.frequency.setValueAtTime(440, now);
-osc.frequency.setValueAtTime(880, now + 0.03);
-gain.gain.setValueAtTime(0.06, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-osc.connect(gain);
-gain.connect(this.ctx.destination);
-osc.start(now);
-osc.stop(now + 0.09);
-} catch(e) {}
-}
-hit() {
-if (!this.enabled || !this.ctx) return;
-try {
-const now = this.ctx.currentTime;
-const bufSize = Math.floor(this.ctx.sampleRate * 0.12);
-const buffer = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
-const data = buffer.getChannelData(0);
-for (let i = 0; i < bufSize; i++) {
-data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.3));
-}
-const noise = this.ctx.createBufferSource();
-noise.buffer = buffer;
-const filter = this.ctx.createBiquadFilter();
-filter.type = 'lowpass';
-filter.frequency.setValueAtTime(550, now);
-filter.frequency.linearRampToValueAtTime(60, now + 0.12);
-const gain = this.ctx.createGain();
-gain.gain.setValueAtTime(0.2, now);
-gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
-noise.connect(filter);
-filter.connect(gain);
-gain.connect(this.ctx.destination);
-noise.start(now);
-} catch(e) {}
-}
-faint() {
-if (!this.enabled || !this.ctx) return;
-try {
-const now = this.ctx.currentTime;
-const osc = this.ctx.createOscillator();
-const gain = this.ctx.createGain();
-osc.type = 'sawtooth';
-osc.frequency.setValueAtTime(280, now);
-osc.frequency.exponentialRampToValueAtTime(50, now + 0.35);
-gain.gain.setValueAtTime(0.12, now);
-gain.gain.linearRampToValueAtTime(0.001, now + 0.35);
-osc.connect(gain);
-gain.connect(this.ctx.destination);
-osc.start(now);
-osc.stop(now + 0.35);
-} catch(e) {}
-}
+  constructor() {
+    this.ctx = null;
+    this.soundOn = true;
+  }
+  init() {
+    if (!this.ctx) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) this.ctx = new AudioCtx();
+      } catch(e) {}
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+  beep(freq = 750, dur = 0.04) {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + dur);
+    } catch(e){}
+  }
+  select() {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(880, now + 0.03);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } catch(e){}
+  }
+  hit() {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const bufSize = Math.floor(this.ctx.sampleRate * 0.12);
+      const buffer = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.3));
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+      noise.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start(now);
+    } catch(e){}
+  }
+  levelUp() {
+    if (!this.soundOn || !this.ctx) return;
+    try {
+      const notes = [440, 554, 659, 880];
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.07);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.07 + 0.09);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + idx * 0.07);
+        osc.stop(this.ctx.currentTime + idx * 0.07 + 0.09);
+      });
+    } catch(e){}
+  }
 }
 const audio = new RetroAudio();
-// --- 2. GAME DATA & SPECIES ---
+
+// --- MOVES DATABASE WITH POWER POINTS (PP) ---
 const MOVES = {
-"Scratch": { name: "Scratch", type: "Normal", power: 40, acc: 100 },
-"Karat Shield": { name: "Karat Shield", type: "Steel", power: 0, acc: 100, buffDef: 1 },
-"Iron Clamp": { name: "Iron Clamp", type: "Steel", power: 65, acc: 95 },
-"Sap Trap": { name: "Sap Trap", type: "Flora", power: 0, acc: 100, debuffSpd: 1 },
-"Latex Slap": { name: "Latex Slap", type: "Flora", power: 45, acc: 100 },
-"Root Leech": { name: "Root Leech", type: "Flora", power: 50, acc: 100, drain: 0.5 },
-"Aqua Jet": { name: "Aqua Jet", type: "Water", power: 40, acc: 100, priority: 1 },
-"Claw Snap": { name: "Claw Snap", type: "Water", power: 55, acc: 95 },
-"Mud Blind": { name: "Mud Blind", type: "Earth", power: 30, acc: 90 },
-"Molten Blast": { name: "Molten Blast", type: "Fire", power: 75, acc: 90 },
-"Slag Armor": { name: "Slag Armor", type: "Steel", power: 0, acc: 100, buffDef: 1 }
+  "Scratch": { name: "Scratch", type: "Normal", power: 40, acc: 100, maxPp: 30, desc: "Cakaran kuku tajam." },
+  "Karat Shield": { name: "Karat Shield", type: "Steel", power: 0, acc: 100, maxPp: 15, buffDef: 1, desc: "Perisai besi tebal (+Def)." },
+  "Iron Clamp": { name: "Iron Clamp", type: "Steel", power: 65, acc: 95, maxPp: 15, desc: "Kepit ragum jentera lama." },
+  "Sap Trap": { name: "Sap Trap", type: "Flora", power: 0, acc: 100, maxPp: 20, debuffSpd: 1, desc: "Gam getah likat (-Spd musuh)." },
+  "Latex Slap": { name: "Latex Slap", type: "Flora", power: 45, acc: 100, maxPp: 25, desc: "Libasan getah sekerap." },
+  "Root Leech": { name: "Root Leech", type: "Flora", power: 50, acc: 100, maxPp: 10, drain: 0.5, desc: "Serap 50% HP kerosakan." },
+  "Aqua Jet": { name: "Aqua Jet", type: "Water", power: 40, acc: 100, maxPp: 20, priority: 1, desc: "Pancutan air lombong laju." },
+  "Claw Snap": { name: "Claw Snap", type: "Water", power: 55, acc: 95, maxPp: 15, desc: "Sepit deras udang galah." },
+  "Mud Blind": { name: "Mud Blind", type: "Earth", power: 30, acc: 90, maxPp: 15, desc: "Lontaran lumpur kelodak." },
+  "Molten Blast": { name: "Molten Blast", type: "Fire", power: 75, acc: 90, maxPp: 10, desc: "Semburan bijih lebur panas." },
+  "Slag Armor": { name: "Slag Armor", type: "Steel", power: 0, acc: 100, maxPp: 10, buffDef: 2, desc: "Kerak sanga padu (+Def x2)." }
 };
-const TYPE_CHART = {
-"Steel": { weak: ["Fire", "Earth"], resist: ["Flora", "Normal"] },
-"Flora": { weak: ["Fire", "Steel"], resist: ["Earth", "Water"] },
-"Water": { weak: ["Flora"], resist: ["Steel", "Fire"] },
-"Fire": { weak: ["Water", "Earth"], resist: ["Flora", "Steel"] },
-"Earth": { weak: ["Water", "Flora"], resist: ["Fire"] },
-"Normal": { weak: [], resist: [] }
-};
+
+// --- BASE SPECIES STATS ---
 const SPECIES = {
-"KARAT": { id: "KARAT", name: "Karat", type: "Steel", hp: 60, maxHp: 60, currentHp: 60, atk: 52, def: 58, spd: 40, moves: ["Scratch", "Karat Shield", "Iron Clamp"] },
-"GETAH": { id: "GETAH", name: "Getah", type: "Flora", hp: 70, maxHp: 70, currentHp: 70, atk: 38, def: 52, spd: 32, moves: ["Latex Slap", "Sap Trap", "Root Leech"] },
-"CENCAL": { id: "CENCAL", name: "Cencal", type: "Water", hp: 50, maxHp: 50, currentHp: 50, atk: 62, def: 38, spd: 65, moves: ["Aqua Jet", "Claw Snap", "Mud Blind"] },
-"LEBURAN": { id: "LEBURAN", name: "Leburan", type: "Fire", hp: 120, maxHp: 120, currentHp: 120, atk: 70, def: 65, spd: 44, moves: ["Molten Blast", "Slag Armor", "Scratch"] }
+  "KARAT": {
+    name: "Karat", type: "Steel", baseHp: 38, baseAtk: 22, baseDef: 28, baseSpd: 18,
+    moves: ["Scratch", "Karat Shield", "Iron Clamp"]
+  },
+  "GETAH": {
+    name: "Getah", type: "Flora", baseHp: 46, baseAtk: 16, baseDef: 24, baseSpd: 14,
+    moves: ["Latex Slap", "Sap Trap", "Root Leech"]
+  },
+  "CENCAL": {
+    name: "Cencal", type: "Water", baseHp: 32, baseAtk: 26, baseDef: 16, baseSpd: 32,
+    moves: ["Aqua Jet", "Claw Snap", "Mud Blind"]
+  },
+  "LEBURAN": {
+    name: "Leburan", type: "Fire", baseHp: 75, baseAtk: 32, baseDef: 26, baseSpd: 20,
+    moves: ["Molten Blast", "Slag Armor", "Scratch"]
+  }
 };
-// --- 3. CANVAS & ENGINE STATE ---
+
+// Helper: Factory creates dynamic RPG Monster Instances
+function createMonster(speciesKey, level = 5) {
+  const base = SPECIES[speciesKey];
+  const maxHp = Math.floor((base.baseHp * 2 * level) / 100) + level + 10;
+  const atk = Math.floor((base.baseAtk * 2 * level) / 100) + 5;
+  const def = Math.floor((base.baseDef * 2 * level) / 100) + 5;
+  const spd = Math.floor((base.baseSpd * 2 * level) / 100) + 5;
+
+  const moveData = base.moves.map(mName => {
+    const m = MOVES[mName];
+    return { name: m.name, pp: m.maxPp, maxPp: m.maxPp };
+  });
+
+  return {
+    speciesKey,
+    name: base.name,
+    type: base.type,
+    level,
+    exp: 0,
+    expNext: level * level * 8,
+    maxHp,
+    hp: maxHp,
+    atk,
+    def,
+    spd,
+    moves: moveData
+  };
+}
+
+// --- ENGINE SETUP & STATE CONSTANTS ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
+
 const STATE = {
-TITLE: 0,
-OVERWORLD: 1,
-DIALOGUE: 2,
-CHOICE: 3,
-BATTLE: 4,
-MENU: 5,
-ENDING: 6
+  TITLE_SCREEN: 0,
+  MAIN_MENU: 1,
+  SETTINGS: 2,
+  OVERWORLD: 3,
+  PAUSE_MENU: 4,
+  PARTY_VIEW: 5,
+  BAG_VIEW: 6,
+  DIALOGUE: 7,
+  CHOICE: 8,
+  BATTLE: 9,
+  ENDING: 10
 };
-let gameState = STATE.TITLE;
+
+let gameState = STATE.TITLE_SCREEN;
+
+const settings = {
+  textSpeed: 1, // 0: Fast, 1: Medium, 2: Slow
+  sound: true
+};
+
 const player = {
-x: 5,
-y: 6,
-dir: 'down',
-party: [],
-hasKarat: false,
-chapter: 1,
-objective: "Periksa meja bengkel arwah datuk di (2, 2)."
+  name: "Danial",
+  x: 5,
+  y: 6,
+  party: [],
+  hasKarat: false,
+  chapter: 1,
+  steps: 0,
+  bag: [
+    { name: "Minyak Angin", count: 3, heal: 25, desc: "Pulihkan 25 HP raksasa." },
+    { name: "Kopi O Panas", count: 2, restorePp: 10, desc: "Segarkan 10 PP langkah." }
+  ]
 };
+
+// Map Grid
 const MAP_W = 20;
 const MAP_H = 15;
 const TILE_SIZE = 16;
 const mapData = [
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,0,0,0,1,1,0,0,0,0,2,2,2,0,0,0,0,0,0,1,
-1,0,3,0,1,1,0,4,0,0,2,2,2,0,0,0,0,0,0,1,
-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-1,1,0,1,1,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
-1,0,0,0,1,0,0,0,0,0,0,0,0,2,2,2,2,0,0,1,
-1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,1,
-1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
-1,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,1,
-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,1,
-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,0,0,0,1,1,0,0,0,0,2,2,2,0,0,0,0,0,0,1,
+  1,0,3,0,1,1,0,4,0,0,2,2,2,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,1,0,1,1,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+  1,0,0,0,1,0,0,0,0,0,0,0,0,2,2,2,2,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1,
+  1,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0,1,
+  1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 ];
+
 function isSolid(x, y) {
-if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H) return true;
-const tile = mapData[y * MAP_W + x];
-return tile === 1 || tile === 5;
+  if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H) return true;
+  const tile = mapData[y * MAP_W + x];
+  return tile === 1 || tile === 5;
 }
-// Dialog & Choice states
+
+// Menu indices & tracking
+let mainMenuIdx = 0;
+let settingsIdx = 0;
+let pauseMenuIdx = 0;
+let bagMenuIdx = 0;
+let partyMenuIdx = 0;
+let hasSavedFile = false;
+let blinkTimer = 0;
+
 let dialogueLines = [];
 let dialogueIdx = 0;
 let dialogueCallback = null;
 let activeChoice = null;
-// Battle state
 let battle = null;
-// Menu & Title states
-let titleMenu = { selected: 0, hasSave: false };
-let pauseMenu = { selected: 0, items: ["PULIH SEMUA (REST)", "STATUS PASUKAN", "SIMPAN (SAVE)", "TUTUP (RESUME)"], msg: "" };
-const SAVE_KEY = "bayang_bayang_save_v1";
-// --- 4. SAVE & LOAD SYSTEM ---
-function autoSaveGame() {
-try {
-const saveData = {
-x: player.x,
-y: player.y,
-dir: player.dir,
-party: player.party,
-hasKarat: player.hasKarat,
-chapter: player.chapter,
-objective: player.objective,
-timestamp: Date.now()
-};
-localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-titleMenu.hasSave = true;
-} catch(e) {
-console.warn("Storage not available:", e);
+let hudNotice = "";
+let hudNoticeTimer = 0;
+
+function checkExistingSave() {
+  const d = Storage.get('bayang_save_rpg_master');
+  hasSavedFile = !!d;
 }
+checkExistingSave();
+
+function saveGame() {
+  const payload = {
+    player,
+    settings
+  };
+  Storage.set('bayang_save_rpg_master', JSON.stringify(payload));
+  hudNotice = "Permainan Disimpan!";
+  hudNoticeTimer = 70;
+  hasSavedFile = true;
+  audio.select();
 }
-function loadSavedGame() {
-try {
-const raw = localStorage.getItem(SAVE_KEY);
-if (!raw) return false;
-const data = JSON.parse(raw);
-player.x = data.x ?? 5;
-player.y = data.y ?? 6;
-player.dir = data.dir ?? 'down';
-player.party = data.party ?? [];
-player.hasKarat = data.hasKarat ?? false;
-player.chapter = data.chapter ?? 1;
-player.objective = data.objective ?? "Cari peninggalan datuk di meja hadapan.";
-titleMenu.hasSave = true;
-return true;
-} catch(e) {
-return false;
+
+function loadGame() {
+  const raw = Storage.get('bayang_save_rpg_master');
+  if (!raw) return false;
+  try {
+    const data = JSON.parse(raw);
+    player.x = data.player.x;
+    player.y = data.player.y;
+    player.chapter = data.player.chapter;
+    player.hasKarat = data.player.hasKarat;
+    player.party = data.player.party;
+    player.bag = data.player.bag;
+    player.steps = data.player.steps || 0;
+    if (data.settings) {
+      settings.textSpeed = data.settings.textSpeed;
+      settings.sound = data.settings.sound;
+      audio.soundOn = settings.sound;
+    }
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
-}
-function checkSaveExists() {
-try {
-const raw = localStorage.getItem(SAVE_KEY);
-titleMenu.hasSave = !!raw;
-if (titleMenu.hasSave) titleMenu.selected = 1; // Default to 'Sambung' if save exists
-} catch(e) {
-titleMenu.hasSave = false;
-}
-}
-checkSaveExists();
-// --- 5. GAME FLOW & BATTLE ENGINE ---
+
 function startDialogue(lines, cb = null) {
-dialogueLines = lines;
-dialogueIdx = 0;
-dialogueCallback = cb;
-gameState = STATE.DIALOGUE;
-audio.beep(800, 0.05);
+  dialogueLines = lines;
+  dialogueIdx = 0;
+  dialogueCallback = cb;
+  gameState = STATE.DIALOGUE;
+  audio.beep(850, 0.03);
 }
+
 function startChoice(prompt, optionA, optionB, onSelect) {
-activeChoice = {
-prompt,
-optA: optionA,
-optB: optionB,
-selected: 0,
-callback: onSelect
-};
-gameState = STATE.CHOICE;
-audio.select();
+  activeChoice = {
+    prompt,
+    optA: optionA,
+    optB: optionB,
+    selected: 0,
+    callback: onSelect
+  };
+  gameState = STATE.CHOICE;
+  audio.select();
 }
-function startBattle(enemyId, onWin) {
-if (player.party.length === 0) {
-player.party.push(JSON.parse(JSON.stringify(SPECIES.KARAT)));
-player.hasKarat = true;
+
+// --- BATTLE SYSTEM ---
+function startBattle(enemySpeciesKey, enemyLevel = 6, onWin = null) {
+  const playerMon = player.party[0];
+  const enemyMon = createMonster(enemySpeciesKey, enemyLevel);
+
+  battle = {
+    playerMon,
+    enemyMon,
+    menuIdx: 0,
+    turnState: 'PLAYER_INPUT',
+    log: [`Seekor ${enemyMon.name} (Tahap ${enemyMon.level}) muncul!`],
+    onWin
+  };
+  gameState = STATE.BATTLE;
+  audio.select();
 }
-const pMon = player.party[0];
-const eSpec = SPECIES[enemyId];
-battle = {
-playerMon: {
-...pMon,
-maxHp: pMon.maxHp || pMon.hp,
-currentHp: pMon.currentHp || pMon.hp,
-buffDef: 0
-},
-enemyMon: {
-...eSpec,
-maxHp: eSpec.maxHp || eSpec.hp,
-currentHp: eSpec.maxHp || eSpec.hp,
-buffDef: 0
-},
-menuIdx: 0,
-turnState: 'PLAYER_INPUT',
-log: [⁠${eSpec.name} liar muncul menyerang!⁠],
-onWin: onWin
-};
-gameState = STATE.BATTLE;
-audio.select();
-}
-function calcDamage(attacker, defender, move) {
-if (!move.power) return 0;
-let mult = 1.0;
-const chart = TYPE_CHART[defender.type];
-if (chart) {
-if (chart.weak.includes(move.type)) mult = 2.0;
-if (chart.resist.includes(move.type)) mult = 0.5;
-}
-const effDef = Math.max(10, defender.def + (defender.buffDef * 15));
-const raw = (((4 * attacker.atk * move.power) / effDef) / 20) + 2;
-const jitter = 0.85 + Math.random() * 0.15;
-return Math.max(1, Math.floor(raw * mult * jitter));
-}
+
 function executePlayerMove(moveIndex) {
-const moveName = battle.playerMon.moves[moveIndex];
-const move = MOVES[moveName] || MOVES["Scratch"];
-battle.turnState = 'BUSY';
-battle.log = [⁠${battle.playerMon.name} guna ${move.name}!⁠];
-audio.hit();
-setTimeout(() => {
-if (move.buffDef) {
-battle.playerMon.buffDef = Math.min(3, battle.playerMon.buffDef + move.buffDef);
-battle.log.push(⁠Pertahanan ${battle.playerMon.name} bertambah kukuh!⁠);
-audio.select();
+  const moveObj = battle.playerMon.moves[moveIndex];
+  const ref = MOVES[moveObj.name];
+
+  if (moveObj.pp <= 0) {
+    battle.log = ["PP langkah ini telah habis!"];
+    audio.beep(300, 0.08);
+    return;
+  }
+
+  moveObj.pp--;
+  battle.turnState = 'BUSY';
+  battle.log = [`${battle.playerMon.name} guna ${moveObj.name}!`];
+  audio.hit();
+
+  setTimeout(() => {
+    if (Math.random() * 100 > ref.acc) {
+      battle.log.push(`${battle.playerMon.name} tersasar!`);
+    } else {
+      if (ref.buffDef) {
+        battle.playerMon.def += 4;
+        battle.log.push(`Pertahanan Karat meningkat!`);
+      }
+      if (ref.power > 0) {
+        const dmg = Math.max(4, Math.floor((battle.playerMon.atk * ref.power) / (battle.enemyMon.def + 8)));
+        battle.enemyMon.hp = Math.max(0, battle.enemyMon.hp - dmg);
+        battle.log.push(`Memberi ${dmg} kerosakan.`);
+        if (ref.drain) {
+          const heal = Math.floor(dmg * ref.drain);
+          battle.playerMon.hp = Math.min(battle.playerMon.maxHp, battle.playerMon.hp + heal);
+          battle.log.push(`${battle.playerMon.name} menyerap ${heal} HP.`);
+        }
+      }
+    }
+
+    if (battle.enemyMon.hp <= 0) {
+      setTimeout(() => {
+        battle.log = [`${battle.enemyMon.name} tumpas!`];
+        const gainExp = battle.enemyMon.level * 18;
+        battle.playerMon.exp += gainExp;
+        battle.log.push(`${battle.playerMon.name} raih ${gainExp} EXP!`);
+        audio.select();
+
+        // Level Up check
+        if (battle.playerMon.exp >= battle.playerMon.expNext) {
+          battle.playerMon.level++;
+          battle.playerMon.exp -= battle.playerMon.expNext;
+          battle.playerMon.expNext = battle.playerMon.level * battle.playerMon.level * 8;
+          battle.playerMon.maxHp += 5;
+          battle.playerMon.hp = battle.playerMon.maxHp;
+          battle.playerMon.atk += 2;
+          battle.playerMon.def += 2;
+          battle.log.push(`Tahap ${battle.playerMon.level} dicapai!`);
+          audio.levelUp();
+        }
+
+        setTimeout(() => {
+          const winCb = battle.onWin;
+          battle = null;
+          gameState = STATE.OVERWORLD;
+          saveGame();
+          if (winCb) winCb();
+        }, 1200);
+      }, 700);
+      return;
+    }
+
+    setTimeout(executeEnemyTurn, 900);
+  }, 700);
 }
-if (move.power > 0) {
-const dmg = calcDamage(battle.playerMon, battle.enemyMon, move);
-battle.enemyMon.currentHp = Math.max(0, battle.enemyMon.currentHp - dmg);
-battle.log.push(⁠Mengenakan ${dmg} kerosakan.⁠);
-if (move.drain) {
-const heal = Math.floor(dmg * move.drain);
-battle.playerMon.currentHp = Math.min(battle.playerMon.maxHp, battle.playerMon.currentHp + heal);
-battle.log.push(⁠${battle.playerMon.name} menyerap ${heal} HP.⁠);
-}
-}
-if (battle.enemyMon.currentHp <= 0) {
-setTimeout(() => {
-battle.log = [⁠${battle.enemyMon.name} tumbang!⁠];
-audio.faint();
-setTimeout(() => {
-player.party[0].currentHp = battle.playerMon.currentHp;
-autoSaveGame();
-const winCb = battle.onWin;
-battle = null;
-gameState = STATE.OVERWORLD;
-if (winCb) winCb();
-}, 1200);
-}, 700);
-return;
-}
-setTimeout(executeEnemyTurn, 1000);
-}, 700);
-}
+
 function executeEnemyTurn() {
-const moveName = battle.enemyMon.moves[Math.floor(Math.random() * battle.enemyMon.moves.length)];
-const move = MOVES[moveName] || MOVES["Scratch"];
-battle.log = [⁠${battle.enemyMon.name} lawan guna ${move.name}!⁠];
-audio.hit();
-setTimeout(() => {
-if (move.buffDef) {
-battle.enemyMon.buffDef = Math.min(3, battle.enemyMon.buffDef + move.buffDef);
-battle.log.push(⁠Pertahanan musuh bertambah padu!⁠);
+  const moveObj = battle.enemyMon.moves[Math.floor(Math.random() * battle.enemyMon.moves.length)];
+  const ref = MOVES[moveObj.name];
+  battle.log = [`${battle.enemyMon.name} musuh guna ${ref.name}!`];
+  audio.hit();
+
+  setTimeout(() => {
+    if (ref.power > 0) {
+      const dmg = Math.max(4, Math.floor((battle.enemyMon.atk * ref.power) / (battle.playerMon.def + 8)));
+      battle.playerMon.hp = Math.max(0, battle.playerMon.hp - dmg);
+      battle.log.push(`Karat menerima ${dmg} kerosakan!`);
+    }
+
+    if (battle.playerMon.hp <= 0) {
+      setTimeout(() => {
+        battle.log = [`${battle.playerMon.name} keletihan...`];
+        setTimeout(() => {
+          battle.playerMon.hp = battle.playerMon.maxHp;
+          gameState = STATE.OVERWORLD;
+          startDialogue(["Pasukan keletihan. Danial kembali berehat di bangku bengkel."]);
+        }, 1100);
+      }, 600);
+      return;
+    }
+
+    battle.turnState = 'PLAYER_INPUT';
+    battle.log = ["Pilih langkah serangan:"];
+  }, 700);
 }
-if (move.power > 0) {
-const dmg = calcDamage(battle.enemyMon, battle.playerMon, move);
-battle.playerMon.currentHp = Math.max(0, battle.playerMon.currentHp - dmg);
-battle.log.push(⁠Danial menerima ${dmg} kerosakan!⁠);
+
+// --- SPRITE RENDERER ---
+function drawBeast(key, x, y, isBack = false) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  if (key === "KARAT") {
+    ctx.fillStyle = '#69717d';
+    ctx.fillRect(4, 8, 24, 18);
+    ctx.fillStyle = '#945b34';
+    ctx.fillRect(8, 12, 16, 10);
+    ctx.fillStyle = '#1c222e';
+    ctx.fillRect(6, 26, 6, 6);
+    ctx.fillRect(20, 26, 6, 6);
+    ctx.fillStyle = isBack ? '#47536e' : '#00f0ff';
+    if (!isBack) {
+      ctx.fillRect(10, 12, 4, 3);
+      ctx.fillRect(18, 12, 4, 3);
+    }
+  } else if (key === "GETAH") {
+    ctx.fillStyle = '#2d5a3f';
+    ctx.beginPath();
+    ctx.arc(16, 18, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f4ecd8';
+    ctx.fillRect(12, 8, 8, 8);
+  } else if (key === "CENCAL") {
+    ctx.fillStyle = '#2b3345';
+    ctx.fillRect(6, 12, 20, 14);
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillRect(3, 10, 6, 6);
+    ctx.fillRect(23, 10, 6, 6);
+  } else if (key === "LEBURAN") {
+    ctx.fillStyle = '#5c3c24';
+    ctx.fillRect(4, 4, 24, 24);
+    ctx.fillStyle = '#d94b4b';
+    ctx.fillRect(8, 8, 16, 16);
+    ctx.fillStyle = '#d3b15f';
+    ctx.fillRect(12, 12, 8, 8);
+  } else {
+    ctx.fillStyle = '#777';
+    ctx.fillRect(4, 4, 24, 24);
+  }
+  ctx.restore();
 }
-if (battle.playerMon.currentHp <= 0) {
-setTimeout(() => {
-battle.log = [⁠${battle.playerMon.name} tewas...⁠];
-audio.faint();
-setTimeout(() => {
-player.party.forEach(p => p.currentHp = p.maxHp);
-player.x = 5;
-player.y = 6;
-gameState = STATE.OVERWORLD;
-autoSaveGame();
-startDialogue(["Karat keletihan. Anda kembali berehat sebentar di bengkel datuk."]);
-}, 1400);
-}, 700);
-return;
+
+// --- UI AND SCENE RENDERING ---
+function drawTitleScreen() {
+  ctx.fillStyle = '#0b0d13';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText("BAYANG-BAYANG", 160, 52);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = '#a3aab5';
+  ctx.fillText("SHADOWS OF PERAK (1998)", 160, 70);
+
+  drawBeast("KARAT", 144, 95, false);
+
+  blinkTimer++;
+  if (Math.floor(blinkTimer / 30) % 2 === 0) {
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '10px monospace';
+    ctx.fillText("- TEKAN [A] ATAU ENTER -", 160, 185);
+  }
+
+  ctx.font = '8px monospace';
+  ctx.fillStyle = '#69717d';
+  ctx.fillText("© 1998 PERAK TIN RESEARCH GROUP", 160, 222);
+  ctx.textAlign = 'left';
 }
-battle.turnState = 'PLAYER_INPUT';
-battle.log = ["Pilih tindakan seterusnya:"];
-}, 800);
+
+function drawMainMenu() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10, 10, 300, 220);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '12px monospace';
+  ctx.fillText("PILIHAN UTAMA", 24, 38);
+
+  const opts = [
+    { label: "Mula Baru (New Game)", enabled: true },
+    { label: "Sambung (Continue)", enabled: hasSavedFile },
+    { label: "Tetapan (Settings)", enabled: true }
+  ];
+
+  ctx.font = '11px monospace';
+  opts.forEach((o, idx) => {
+    const isSel = mainMenuIdx === idx;
+    if (!o.enabled) ctx.fillStyle = '#4f5666';
+    else ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+
+    ctx.fillText((isSel ? '▶ ' : '  ') + o.label, 30, 80 + idx * 30);
+  });
+
+  if (hasSavedFile) {
+    ctx.fillStyle = '#a3aab5';
+    ctx.font = '9px monospace';
+    ctx.fillText(`Rekod sedia ada: Danial | Bab ${player.chapter}`, 30, 195);
+  }
 }
-// --- 6. PROCEDURAL SPRITES & DRAWING ---
-function drawBeast(name, x, y, size = 32, isBack = false) {
-ctx.save();
-ctx.translate(x, y);
-if (name === "KARAT") {
-ctx.fillStyle = '#69717d';
-ctx.fillRect(4, 8, 24, 18);
-ctx.fillStyle = '#945b34';
-ctx.fillRect(8, 12, 16, 10);
-ctx.fillStyle = '#4a2813';
-ctx.fillRect(6, 26, 6, 6);
-ctx.fillRect(20, 26, 6, 6);
-ctx.fillStyle = isBack ? '#47536e' : '#00f0ff';
-if (!isBack) {
-ctx.fillRect(10, 12, 4, 3);
-ctx.fillRect(18, 12, 4, 3);
+
+function drawSettings() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(10, 10, 300, 220);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '12px monospace';
+  ctx.fillText("TETAPAN SISTEM", 24, 38);
+
+  const speedNames = ["Pantas", "Sederhana", "Perlahan"];
+  const rows = [
+    `Kelajuan Teks  : < ${speedNames[settings.textSpeed]} >`,
+    `Bunyi Audio    : < ${settings.sound ? 'HIDUP' : 'TUTUP'} >`,
+    `Kembali Ke Menu Utama`
+  ];
+
+  ctx.font = '10px monospace';
+  rows.forEach((r, idx) => {
+    const isSel = settingsIdx === idx;
+    ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+    ctx.fillText((isSel ? '▶ ' : '  ') + r, 26, 85 + idx * 32);
+  });
 }
-} else if (name === "GETAH") {
-ctx.fillStyle = '#2d5a3f';
-ctx.beginPath();
-ctx.arc(16, 18, 12, 0, Math.PI * 2);
-ctx.fill();
-ctx.fillStyle = '#f4ecd8';
-ctx.fillRect(12, 8, 8, 10);
-} else if (name === "CENCAL") {
-ctx.fillStyle = '#2b3345';
-ctx.fillRect(6, 12, 20, 14);
-ctx.fillStyle = '#00f0ff';
-ctx.fillRect(2, 8, 8, 8);
-ctx.fillRect(22, 8, 8, 8);
-} else if (name === "LEBURAN") {
-ctx.fillStyle = '#5c3c24';
-ctx.fillRect(4, 4, 24, 24);
-ctx.fillStyle = '#d94b4b';
-ctx.fillRect(8, 8, 16, 16);
-ctx.fillStyle = '#d3b15f';
-ctx.fillRect(12, 12, 8, 8);
-} else {
-ctx.fillStyle = '#888';
-ctx.fillRect(4, 4, 24, 24);
-}
-ctx.restore();
-}
+
 function drawOverworld() {
-ctx.fillStyle = '#0e1117';
-ctx.fillRect(0, 0, 320, 240);
-const camX = Math.max(0, Math.min(MAP_W * TILE_SIZE - 320, player.x * TILE_SIZE - 160));
-const camY = Math.max(0, Math.min(MAP_H * TILE_SIZE - 240, player.y * TILE_SIZE - 120));
-ctx.save();
-ctx.translate(-camX, -camY);
-for (let y = 0; y < MAP_H; y++) {
-for (let x = 0; x < MAP_W; x++) {
-const tile = mapData[y * MAP_W + x];
-const px = x * TILE_SIZE;
-const py = y * TILE_SIZE;
-if (tile === 0) {
-ctx.fillStyle = '#222831';
-ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-} else if (tile === 1) {
-ctx.fillStyle = '#1c3829';
-ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-ctx.fillStyle = '#2d5a3f';
-ctx.fillRect(px + 2, py + 2, 12, 12);
-} else if (tile === 2) {
-ctx.fillStyle = '#2d5a3f';
-ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-ctx.fillStyle = '#142e1f';
-ctx.fillRect(px + 4, py + 4, 8, 8);
-} else if (tile === 3) {
-ctx.fillStyle = '#5c3c24';
-ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-ctx.fillStyle = '#d3b15f';
-ctx.fillRect(px + 4, py + 4, 8, 8);
-} else if (tile === 4) {
-ctx.fillStyle = '#2b3345';
-ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-} else if (tile === 5) {
-ctx.fillStyle = '#69717d';
-ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-ctx.fillStyle = '#a3aab5';
-ctx.fillRect(px + 2, py + 2, 12, 12);
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  const camX = Math.max(0, Math.min(MAP_W * TILE_SIZE - 320, player.x * TILE_SIZE - 160));
+  const camY = Math.max(0, Math.min(MAP_H * TILE_SIZE - 240, player.y * TILE_SIZE - 120));
+
+  ctx.save();
+  ctx.translate(-camX, -camY);
+
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const tile = mapData[y * MAP_W + x];
+      const px = x * TILE_SIZE;
+      const py = y * TILE_SIZE;
+
+      if (tile === 0) {
+        ctx.fillStyle = '#222831';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 1) {
+        ctx.fillStyle = '#1c3829';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#2d5a3f';
+        ctx.fillRect(px + 2, py + 2, 12, 12);
+      } else if (tile === 2) {
+        ctx.fillStyle = '#2d5a3f';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 3) {
+        ctx.fillStyle = '#5c3c24';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = '#d3b15f';
+        ctx.fillRect(px + 4, py + 4, 8, 8);
+      } else if (tile === 4) {
+        ctx.fillStyle = '#2b3345';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 5) {
+        ctx.fillStyle = '#69717d';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      }
+    }
+  }
+
+  // Draw Player Avatar
+  const plX = player.x * TILE_SIZE;
+  const plY = player.y * TILE_SIZE;
+  ctx.fillStyle = '#d3b15f';
+  ctx.fillRect(plX + 3, plY + 2, 10, 6);
+  ctx.fillStyle = '#945b34';
+  ctx.fillRect(plX + 2, plY + 8, 12, 8);
+
+  ctx.restore();
+
+  // Top Tracker Bar
+  ctx.fillStyle = 'rgba(18, 20, 29, 0.9)';
+  ctx.fillRect(4, 4, 150, 22);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(4, 4, 150, 22);
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '9px monospace';
+  ctx.fillText(`BAB ${player.chapter}: Pekan Timah`, 8, 18);
+
+  if (hudNoticeTimer > 0) {
+    hudNoticeTimer--;
+    ctx.fillStyle = '#2d5a3f';
+    ctx.fillRect(174, 4, 140, 22);
+    ctx.strokeStyle = '#d3b15f';
+    ctx.strokeRect(174, 4, 140, 22);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(hudNotice, 182, 18);
+  }
 }
+
+function drawPauseMenu() {
+  drawOverworld();
+  ctx.fillStyle = 'rgba(18, 20, 29, 0.96)';
+  ctx.fillRect(180, 20, 130, 195);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(180, 20, 130, 195);
+
+  const list = [
+    "1. Raksasa",
+    "2. Beg Poket",
+    "3. Danial (ID)",
+    "4. Simpan",
+    "5. Keluar Menu"
+  ];
+
+  ctx.font = '10px monospace';
+  list.forEach((item, idx) => {
+    const isSel = pauseMenuIdx === idx;
+    ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+    ctx.fillText((isSel ? '▶' : ' ') + item, 188, 48 + idx * 30);
+  });
 }
+
+function drawPartyView() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(8, 8, 304, 224);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '11px monospace';
+  ctx.fillText("PASUKAN RAKSASA DANIAL", 18, 28);
+
+  if (player.party.length === 0) {
+    ctx.fillStyle = '#a3aab5';
+    ctx.fillText("Belum ada raksasa menyertai.", 24, 70);
+  } else {
+    player.party.forEach((p, idx) => {
+      const isSel = partyMenuIdx === idx;
+      ctx.fillStyle = isSel ? 'rgba(0, 240, 255, 0.15)' : '#181d28';
+      ctx.fillRect(18, 44 + idx * 72, 284, 64);
+      ctx.strokeStyle = isSel ? '#00f0ff' : '#69717d';
+      ctx.strokeRect(18, 44 + idx * 72, 284, 64);
+
+      drawBeast(p.speciesKey, 24, 52 + idx * 72);
+
+      ctx.fillStyle = '#f4ecd8';
+      ctx.font = '10px monospace';
+      ctx.fillText(`${p.name}  Lv.${p.level} [${p.type}]`, 68, 62 + idx * 72);
+      ctx.fillText(`HP: ${p.hp}/${p.maxHp}  EXP: ${p.exp}/${p.expNext}`, 68, 78 + idx * 72);
+
+      const mNames = p.moves.map(m => `${m.name}(${m.pp})`).join(" ");
+      ctx.fillStyle = '#a3aab5';
+      ctx.font = '8px monospace';
+      ctx.fillText(mNames, 68, 94 + idx * 72);
+    });
+  }
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '9px monospace';
+  ctx.fillText("[B]: Kembali Ke Menu", 18, 220);
 }
-// Draw Player (Danial)
-const plX = player.x * TILE_SIZE;
-const plY = player.y * TILE_SIZE;
-ctx.fillStyle = '#d3b15f';
-ctx.fillRect(plX + 3, plY + 2, 10, 6);
-ctx.fillStyle = '#945b34';
-ctx.fillRect(plX + 2, plY + 8, 12, 8);
-ctx.fillStyle = '#12141d';
-ctx.fillRect(plX + 4, plY + 14, 3, 2);
-ctx.fillRect(plX + 9, plY + 14, 3, 2);
-// Companion Karat following behind
-if (player.hasKarat) {
-let folX = plX;
-let folY = plY + 14;
-if (player.dir === 'down') folY = plY - 12;
-if (player.dir === 'up') folY = plY + 14;
-if (player.dir === 'left') folX = plX + 14;
-if (player.dir === 'right') folX = plX - 14;
-ctx.fillStyle = '#69717d';
-ctx.fillRect(folX + 2, folY + 2, 10, 8);
-ctx.fillStyle = '#00f0ff';
-ctx.fillRect(folX + 3, folY + 3, 2, 2);
+
+function drawBagView() {
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(8, 8, 304, 224);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '11px monospace';
+  ctx.fillText("BEG GALAS DANIAL", 18, 28);
+
+  player.bag.forEach((it, idx) => {
+    const isSel = bagMenuIdx === idx;
+    ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+    ctx.font = '10px monospace';
+    ctx.fillText((isSel ? '▶ ' : '  ') + `${it.name} x${it.count}`, 24, 60 + idx * 26);
+  });
+
+  const selItem = player.bag[bagMenuIdx];
+  if (selItem) {
+    ctx.fillStyle = '#181d28';
+    ctx.fillRect(18, 145, 284, 55);
+    ctx.strokeStyle = '#d3b15f';
+    ctx.strokeRect(18, 145, 284, 55);
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '9px monospace';
+    ctx.fillText(selItem.desc, 26, 175);
+  }
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '9px monospace';
+  ctx.fillText("[A]: Guna Barangan | [B]: Kembali", 18, 220);
 }
-ctx.restore();
-// Top HUD Bar
-ctx.fillStyle = 'rgba(18, 20, 29, 0.9)';
-ctx.fillRect(4, 4, 312, 22);
-ctx.strokeStyle = '#d3b15f';
-ctx.strokeRect(4, 4, 312, 22);
-ctx.fillStyle = '#f4ecd8';
-ctx.font = '9px monospace';
-ctx.fillText(⁠BAB ${player.chapter} | PASUKAN: ${player.party.length} | [B]: MENU⁠, 10, 18);
-}
+
 function drawDialogueBox() {
-ctx.fillStyle = '#12141d';
-ctx.fillRect(8, 156, 304, 76);
-ctx.strokeStyle = '#d3b15f';
-ctx.lineWidth = 2;
-ctx.strokeRect(8, 156, 304, 76);
-ctx.fillStyle = '#f4ecd8';
-ctx.font = '10px monospace';
-const text = dialogueLines[dialogueIdx] || '';
-// Safe line wrap without regex escape failure
-const words = text.split(' ');
-const lines = [];
-let curr = '';
-for (let i = 0; i < words.length; i++) {
-const candidate = curr ? (curr + ' ' + words[i]) : words[i];
-if (candidate.length > 40) {
-if (curr) lines.push(curr);
-curr = words[i];
-} else {
-curr = candidate;
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(8, 160, 304, 72);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(8, 160, 304, 72);
+
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '10px monospace';
+  const text = dialogueLines[dialogueIdx] || '';
+  
+  const words = text.split(" ");
+  let l1 = "";
+  let l2 = "";
+  for (let i = 0; i < words.length; i++) {
+    if (i < 6) l1 += words[i] + " ";
+    else l2 += words[i] + " ";
+  }
+  ctx.fillText(l1, 16, 184);
+  ctx.fillText(l2, 16, 204);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.fillText('[A] Seterusnya ▶', 200, 224);
 }
-}
-if (curr) lines.push(curr);
-lines.slice(0, 3).forEach((line, i) => {
-ctx.fillText(line, 16, 176 + i * 16);
-});
-ctx.fillStyle = '#d3b15f';
-ctx.fillText('[A] Seterusnya ▶', 204, 224);
-}
+
 function drawChoiceBox() {
-drawDialogueBox();
-ctx.fillStyle = '#12141d';
-ctx.fillRect(150, 85, 160, 68);
-ctx.strokeStyle = '#d3b15f';
-ctx.lineWidth = 2;
-ctx.strokeRect(150, 85, 160, 68);
-ctx.font = '10px monospace';
-ctx.fillStyle = activeChoice.selected === 0 ? '#00f0ff' : '#f4ecd8';
-ctx.fillText((activeChoice.selected === 0 ? '▶ ' : '  ') + activeChoice.optA, 158, 110);
-ctx.fillStyle = activeChoice.selected === 1 ? '#00f0ff' : '#f4ecd8';
-ctx.fillText((activeChoice.selected === 1 ? '▶ ' : '  ') + activeChoice.optB, 158, 134);
+  drawDialogueBox();
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(150, 90, 160, 65);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(150, 90, 160, 65);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = activeChoice.selected === 0 ? '#00f0ff' : '#f4ecd8';
+  ctx.fillText((activeChoice.selected === 0 ? '▶ ' : '  ') + activeChoice.optA, 156, 115);
+
+  ctx.fillStyle = activeChoice.selected === 1 ? '#00f0ff' : '#f4ecd8';
+  ctx.fillText((activeChoice.selected === 1 ? '▶ ' : '  ') + activeChoice.optB, 156, 138);
 }
+
 function drawBattle() {
-ctx.fillStyle = '#1a1f2c';
-ctx.fillRect(0, 0, 320, 240);
-ctx.fillStyle = '#2d5a3f';
-ctx.beginPath();
-ctx.ellipse(230, 80, 50, 16, 0, 0, Math.PI * 2);
-ctx.fill();
-ctx.beginPath();
-ctx.ellipse(80, 145, 55, 18, 0, 0, Math.PI * 2);
-ctx.fill();
-drawBeast(battle.enemyMon.id || battle.enemyMon.name.toUpperCase(), 215, 52, 32, false);
-drawBeast(battle.playerMon.id || battle.playerMon.name.toUpperCase(), 65, 115, 32, true);
-// Enemy Box
-ctx.fillStyle = '#12141d';
-ctx.fillRect(10, 10, 130, 38);
-ctx.strokeStyle = '#d3b15f';
-ctx.strokeRect(10, 10, 130, 38);
-ctx.fillStyle = '#f4ecd8';
-ctx.font = '9px monospace';
-ctx.fillText(battle.enemyMon.name, 16, 24);
-const eHpPct = Math.max(0, battle.enemyMon.currentHp / battle.enemyMon.maxHp);
-ctx.fillStyle = '#333';
-ctx.fillRect(16, 30, 110, 6);
-ctx.fillStyle = eHpPct > 0.4 ? '#2d5a3f' : '#d94b4b';
-ctx.fillRect(16, 30, Math.floor(110 * eHpPct), 6);
-// Player Box
-ctx.fillStyle = '#12141d';
-ctx.fillRect(180, 106, 130, 44);
-ctx.strokeStyle = '#d3b15f';
-ctx.strokeRect(180, 106, 130, 44);
-ctx.fillStyle = '#f4ecd8';
-ctx.font = '9px monospace';
-ctx.fillText(battle.playerMon.name, 186, 120);
-const pHpPct = Math.max(0, battle.playerMon.currentHp / battle.playerMon.maxHp);
-ctx.fillStyle = '#333';
-ctx.fillRect(186, 126, 110, 6);
-ctx.fillStyle = pHpPct > 0.4 ? '#2d5a3f' : '#d94b4b';
-ctx.fillRect(186, 126, Math.floor(110 * pHpPct), 6);
-ctx.fillText(⁠${battle.playerMon.currentHp}/${battle.playerMon.maxHp} HP⁠, 186, 142);
-// Action Panel
-ctx.fillStyle = '#12141d';
-ctx.fillRect(6, 156, 308, 78);
-ctx.strokeStyle = '#d3b15f';
-ctx.strokeRect(6, 156, 308, 78);
-if (battle.turnState === 'PLAYER_INPUT') {
-ctx.fillStyle = '#f4ecd8';
-ctx.font = '10px monospace';
-battle.playerMon.moves.forEach((m, idx) => {
-const col = idx % 2;
-const row = Math.floor(idx / 2);
-const isSel = battle.menuIdx === idx;
-ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
-ctx.fillText((isSel ? '▶ ' : '  ') + m, 18 + col * 140, 182 + row * 22);
-});
-} else {
-ctx.fillStyle = '#f4ecd8';
-ctx.font = '10px monospace';
-battle.log.forEach((l, i) => {
-ctx.fillText(l, 16, 182 + i * 18);
-});
+  ctx.fillStyle = '#1a1f2c';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.fillStyle = '#2d5a3f';
+  ctx.beginPath();
+  ctx.ellipse(230, 80, 50, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.ellipse(80, 145, 55, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawBeast(battle.enemyMon.speciesKey, 215, 52, false);
+  drawBeast(battle.playerMon.speciesKey, 65, 115, true);
+
+  // Enemy Box
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(10, 8, 140, 38);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(10, 8, 140, 38);
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '9px monospace';
+  ctx.fillText(`${battle.enemyMon.name} Lv.${battle.enemyMon.level}`, 16, 22);
+  const eHpPct = battle.enemyMon.hp / battle.enemyMon.maxHp;
+  ctx.fillStyle = '#333';
+  ctx.fillRect(16, 28, 120, 6);
+  ctx.fillStyle = '#d94b4b';
+  ctx.fillRect(16, 28, Math.floor(120 * eHpPct), 6);
+
+  // Player Box
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(170, 105, 140, 46);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(170, 105, 140, 46);
+  ctx.fillStyle = '#f4ecd8';
+  ctx.font = '9px monospace';
+  ctx.fillText(`${battle.playerMon.name} Lv.${battle.playerMon.level}`, 176, 120);
+  const pHpPct = battle.playerMon.hp / battle.playerMon.maxHp;
+  ctx.fillStyle = '#333';
+  ctx.fillRect(176, 126, 120, 6);
+  ctx.fillStyle = '#2d5a3f';
+  ctx.fillRect(176, 126, Math.floor(120 * pHpPct), 6);
+  ctx.fillText(`${battle.playerMon.hp}/${battle.playerMon.maxHp} HP`, 176, 144);
+
+  // Command Area
+  ctx.fillStyle = '#12141d';
+  ctx.fillRect(6, 160, 308, 74);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(6, 160, 308, 74);
+
+  if (battle.turnState === 'PLAYER_INPUT') {
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '9px monospace';
+    battle.playerMon.moves.forEach((m, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const isSel = battle.menuIdx === idx;
+      ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
+      ctx.fillText((isSel ? '▶ ' : '  ') + `${m.name} [${m.pp}/${m.maxPp}]`, 16 + col * 145, 184 + row * 22);
+    });
+  } else {
+    ctx.fillStyle = '#f4ecd8';
+    ctx.font = '10px monospace';
+    battle.log.forEach((l, i) => {
+      ctx.fillText(l, 16, 184 + i * 18);
+    });
+  }
 }
-}
-function drawMenu() {
-drawOverworld();
-ctx.fillStyle = 'rgba(8, 10, 14, 0.88)';
-ctx.fillRect(0, 0, 320, 240);
-ctx.fillStyle = '#12141d';
-ctx.fillRect(40, 30, 240, 180);
-ctx.strokeStyle = '#d3b15f';
-ctx.lineWidth = 2;
-ctx.strokeRect(40, 30, 240, 180);
-ctx.fillStyle = '#d3b15f';
-ctx.font = '11px monospace';
-ctx.fillText("MENU JURNAL & STATUS", 90, 52);
-ctx.font = '10px monospace';
-pauseMenu.items.forEach((item, idx) => {
-const isSel = pauseMenu.selected === idx;
-ctx.fillStyle = isSel ? '#00f0ff' : '#f4ecd8';
-ctx.fillText((isSel ? '▶ ' : '  ') + item, 60, 84 + idx * 24);
-});
-if (pauseMenu.msg) {
-ctx.fillStyle = '#d3b15f';
-ctx.font = '9px monospace';
-ctx.fillText(pauseMenu.msg, 60, 188);
-} else {
-ctx.fillStyle = '#8892b0';
-ctx.font = '8px monospace';
-ctx.fillText(⁠OBJEKTIF: ${player.objective.slice(0, 32)}...⁠, 52, 190);
-}
-}
-function drawTitle() {
-ctx.fillStyle = '#0e1117';
-ctx.fillRect(0, 0, 320, 240);
-ctx.fillStyle = '#d3b15f';
-ctx.font = '16px monospace';
-ctx.textAlign = 'center';
-ctx.fillText("BAYANG-BAYANG", 160, 55);
-ctx.font = '10px monospace';
-ctx.fillStyle = '#a3aab5';
-ctx.fillText("SHADOWS OF PERAK (1998)", 160, 72);
-drawBeast("KARAT", 144, 95, 32, false);
-ctx.font = '10px monospace';
-const optNew = (titleMenu.selected === 0 ? "▶ " : "  ") + "MULA BARU (NEW GAME)";
-ctx.fillStyle = titleMenu.selected === 0 ? '#00f0ff' : '#f4ecd8';
-ctx.fillText(optNew, 160, 165);
-if (titleMenu.hasSave) {
-const optCont = (titleMenu.selected === 1 ? "▶ " : "  ") + "SAMBUNG (CONTINUE)";
-ctx.fillStyle = titleMenu.selected === 1 ? '#00f0ff' : '#f4ecd8';
-ctx.fillText(optCont, 160, 185);
-} else {
-ctx.fillStyle = '#555';
-ctx.fillText("  TIADA SAVE TERSEDIA", 160, 185);
-}
-ctx.font = '8px monospace';
-ctx.fillStyle = '#69717d';
-ctx.fillText("Guna [▲/▼] & Tekan [A] / Enter Untuk Mula", 160, 218);
-ctx.textAlign = 'left';
-}
+
 function drawEnding() {
-ctx.fillStyle = '#0e1117';
-ctx.fillRect(0, 0, 320, 240);
-ctx.fillStyle = '#d3b15f';
-ctx.font = '14px monospace';
-ctx.textAlign = 'center';
-ctx.fillText("TAMAT: FAJAR LEMBAH KINTA", 160, 48);
-ctx.font = '9px monospace';
-ctx.fillStyle = '#f4ecd8';
-ctx.fillText("Tauke Razak ditahan polis IPD Batu Gajah.", 160, 75);
-ctx.fillText("Lombong Timah Hitam selamat dibanjirkan.", 160, 92);
-ctx.fillText("Pekan Timah diselamatkan daripada letupan.", 160, 109);
-drawBeast("KARAT", 120, 126, 32, false);
-if (player.party[1]) {
-drawBeast(player.party[1].id || player.party[1].name.toUpperCase(), 168, 126, 32, false);
+  ctx.fillStyle = '#0e1117';
+  ctx.fillRect(0, 0, 320, 240);
+
+  ctx.fillStyle = '#d3b15f';
+  ctx.font = '13px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText("TAMAT: FAJAR LEMBAH KINTA", 160, 48);
+
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#f4ecd8';
+  ctx.fillText("Tauke Razak telah ditangkap pihak berkuasa.", 160, 80);
+  ctx.fillText("Lombong Timah Hitam selamat ditenggelamkan.", 160, 98);
+  ctx.fillText("Farah selamat, dan Pekan Timah kembali aman.", 160, 116);
+
+  drawBeast("KARAT", 144, 134, false);
+
+  ctx.fillStyle = '#2d5a3f';
+  ctx.fillRect(50, 182, 220, 26);
+  ctx.strokeStyle = '#d3b15f';
+  ctx.strokeRect(50, 182, 220, 26);
+  ctx.fillStyle = '#fff';
+  ctx.font = '10px monospace';
+  ctx.fillText("TEKAN [A]: KEMBALI KE MENU", 160, 199);
+  ctx.textAlign = 'left';
 }
-ctx.fillStyle = '#2d5a3f';
-ctx.fillRect(50, 175, 220, 26);
-ctx.strokeStyle = '#d3b15f';
-ctx.strokeRect(50, 175, 220, 26);
-ctx.fillStyle = '#fff';
-ctx.font = '10px monospace';
-ctx.fillText("TEKAN [A]: BELANJA KOPI", 160, 192);
-ctx.textAlign = 'left';
-}
-// --- 7. MAIN ENGINE LOOP ---
+
+// --- MAIN LOOP ---
 function gameLoop() {
-ctx.clearRect(0, 0, 320, 240);
-switch (gameState) {
-case STATE.TITLE:
-drawTitle();
-break;
-case STATE.OVERWORLD:
-drawOverworld();
-break;
-case STATE.DIALOGUE:
-drawOverworld();
-drawDialogueBox();
-break;
-case STATE.CHOICE:
-drawOverworld();
-drawChoiceBox();
-break;
-case STATE.BATTLE:
-drawBattle();
-break;
-case STATE.MENU:
-drawMenu();
-break;
-case STATE.ENDING:
-drawEnding();
-break;
+  ctx.clearRect(0, 0, 320, 240);
+
+  switch (gameState) {
+    case STATE.TITLE_SCREEN:
+      drawTitleScreen();
+      break;
+    case STATE.MAIN_MENU:
+      drawMainMenu();
+      break;
+    case STATE.SETTINGS:
+      drawSettings();
+      break;
+    case STATE.OVERWORLD:
+      drawOverworld();
+      break;
+    case STATE.PAUSE_MENU:
+      drawPauseMenu();
+      break;
+    case STATE.PARTY_VIEW:
+      drawPartyView();
+      break;
+    case STATE.BAG_VIEW:
+      drawBagView();
+      break;
+    case STATE.DIALOGUE:
+      drawOverworld();
+      drawDialogueBox();
+      break;
+    case STATE.CHOICE:
+      drawOverworld();
+      drawChoiceBox();
+      break;
+    case STATE.BATTLE:
+      drawBattle();
+      break;
+    case STATE.ENDING:
+      drawEnding();
+      break;
+  }
+  requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
-}
-requestAnimationFrame(gameLoop);
-// --- 8. INPUT HANDLERS ---
+
+// --- INPUT PROCESSORS ---
 function handleInputA() {
-audio.init();
-if (gameState === STATE.TITLE) {
-audio.select();
-if (titleMenu.selected === 1 && titleMenu.hasSave) {
-loadSavedGame();
-gameState = STATE.OVERWORLD;
-startDialogue([
-"Permainan berjaya dimuatkan!",
-⁠Objektif semasa: ${player.objective}⁠
-]);
-} else {
-player.x = 5;
-player.y = 6;
-player.party = [];
-player.hasKarat = false;
-player.chapter = 1;
-player.objective = "Periksa meja bengkel arwah datuk di (2, 2).";
-autoSaveGame();
-gameState = STATE.OVERWORLD;
-startDialogue([
-"Danial tiba di bengkel tinggalan arwah datuk di Pekan Timah.",
-"Khabar angin mengatakan Farah hilang di tapak kuari semalam.",
-"Cari peninggalan datuk di meja hadapan."
-]);
+  audio.init();
+
+  if (gameState === STATE.TITLE_SCREEN) {
+    audio.select();
+    checkExistingSave();
+    gameState = STATE.MAIN_MENU;
+    mainMenuIdx = hasSavedFile ? 1 : 0;
+  } else if (gameState === STATE.MAIN_MENU) {
+    audio.select();
+    if (mainMenuIdx === 0) {
+      // New Game
+      player.x = 5;
+      player.y = 6;
+      player.party = [];
+      player.hasKarat = false;
+      player.chapter = 1;
+      gameState = STATE.OVERWORLD;
+      startDialogue([
+        "Danial tiba di bengkel tinggalan arwah datuk di Pekan Timah.",
+        "Khabar angin mengatakan Farah hilang di tapak kuari semalam.",
+        "Siasat meja bengkel di atas [KOTAK COKLAT] untuk mencari petunjuk!"
+      ]);
+    } else if (mainMenuIdx === 1 && hasSavedFile) {
+      loadGame();
+      gameState = STATE.OVERWORLD;
+      hudNotice = "Permainan Disambung!";
+      hudNoticeTimer = 70;
+    } else if (mainMenuIdx === 2) {
+      gameState = STATE.SETTINGS;
+      settingsIdx = 0;
+    }
+  } else if (gameState === STATE.SETTINGS) {
+    audio.select();
+    if (settingsIdx === 2) {
+      saveGame();
+      gameState = STATE.MAIN_MENU;
+    }
+  } else if (gameState === STATE.PAUSE_MENU) {
+    audio.select();
+    if (pauseMenuIdx === 0) {
+      gameState = STATE.PARTY_VIEW;
+      partyMenuIdx = 0;
+    } else if (pauseMenuIdx === 1) {
+      gameState = STATE.BAG_VIEW;
+      bagMenuIdx = 0;
+    } else if (pauseMenuIdx === 2) {
+      startDialogue([
+        `KAD ID: ${player.name} | Langkah: ${player.steps}`,
+        `Bab Semasa: ${player.chapter} | Raksasa: ${player.party.length}/2`
+      ]);
+    } else if (pauseMenuIdx === 3) {
+      saveGame();
+      gameState = STATE.OVERWORLD;
+    } else if (pauseMenuIdx === 4) {
+      gameState = STATE.OVERWORLD;
+    }
+  } else if (gameState === STATE.BAG_VIEW) {
+    const it = player.bag[bagMenuIdx];
+    if (it && it.count > 0 && player.party.length > 0) {
+      audio.select();
+      it.count--;
+      if (it.heal) {
+        player.party[0].hp = Math.min(player.party[0].maxHp, player.party[0].hp + it.heal);
+        startDialogue([`${it.name} digunakan! ${player.party[0].name} pulih 25 HP.`]);
+      } else if (it.restorePp) {
+        player.party[0].moves.forEach(m => m.pp = m.maxPp);
+        startDialogue([`Kopi O Panas dihirup! Semua PP langkah dipulihkan penuh.`]);
+      }
+    } else {
+      audio.beep(320, 0.05);
+    }
+  } else if (gameState === STATE.DIALOGUE) {
+    dialogueIdx++;
+    audio.beep(850, 0.03);
+    if (dialogueIdx >= dialogueLines.length) {
+      gameState = STATE.OVERWORLD;
+      if (dialogueCallback) {
+        const cb = dialogueCallback;
+        dialogueCallback = null;
+        cb();
+      }
+    }
+  } else if (gameState === STATE.CHOICE) {
+    audio.select();
+    const chosen = activeChoice.selected;
+    const cb = activeChoice.callback;
+    activeChoice = null;
+    gameState = STATE.OVERWORLD;
+    if (cb) cb(chosen);
+  } else if (gameState === STATE.BATTLE) {
+    if (battle && battle.turnState === 'PLAYER_INPUT') {
+      audio.select();
+      executePlayerMove(battle.menuIdx);
+    }
+  } else if (gameState === STATE.ENDING) {
+    audio.select();
+    gameState = STATE.MAIN_MENU;
+  }
 }
-} else if (gameState === STATE.DIALOGUE) {
-dialogueIdx++;
-audio.beep(850, 0.03);
-if (dialogueIdx >= dialogueLines.length) {
-gameState = STATE.OVERWORLD;
-if (dialogueCallback) {
-const cb = dialogueCallback;
-dialogueCallback = null;
-cb();
-}
-}
-} else if (gameState === STATE.CHOICE) {
-audio.select();
-const chosen = activeChoice.selected;
-const cb = activeChoice.callback;
-activeChoice = null;
-gameState = STATE.OVERWORLD;
-if (cb) cb(chosen);
-} else if (gameState === STATE.BATTLE) {
-if (battle && battle.turnState === 'PLAYER_INPUT') {
-audio.select();
-executePlayerMove(battle.menuIdx);
-}
-} else if (gameState === STATE.MENU) {
-executeMenuAction();
-} else if (gameState === STATE.ENDING) {
-audio.select();
-openKopiModal();
-}
-}
+
 function handleInputB() {
-audio.init();
-if (gameState === STATE.OVERWORLD) {
-audio.select();
-pauseMenu.selected = 0;
-pauseMenu.msg = "";
-gameState = STATE.MENU;
-} else if (gameState === STATE.MENU) {
-audio.beep(400, 0.04);
-gameState = STATE.OVERWORLD;
-} else if (gameState === STATE.BATTLE && battle && battle.turnState === 'PLAYER_INPUT') {
-audio.beep(400, 0.04);
+  audio.init();
+  if (gameState === STATE.OVERWORLD) {
+    pauseMenuIdx = 0;
+    gameState = STATE.PAUSE_MENU;
+    audio.select();
+  } else if (gameState === STATE.PAUSE_MENU || gameState === STATE.PARTY_VIEW || gameState === STATE.BAG_VIEW) {
+    gameState = STATE.OVERWORLD;
+    audio.beep(400, 0.04);
+  } else if (gameState === STATE.SETTINGS) {
+    gameState = STATE.MAIN_MENU;
+    audio.beep(400, 0.04);
+  }
 }
-}
-function executeMenuAction() {
-audio.select();
-const choice = pauseMenu.selected;
-if (choice === 0) {
-// Heal all
-player.party.forEach(p => p.currentHp = p.maxHp);
-pauseMenu.msg = "Semua raksasa kembali bertenaga!";
-audio.select();
-autoSaveGame();
-} else if (choice === 1) {
-// Status
-if (player.party.length === 0) {
-pauseMenu.msg = "Tiada raksasa dalam pasukan.";
-} else {
-const summary = player.party.map(p => ⁠${p.name} (${p.currentHp}/${p.maxHp} HP)⁠).join(', ');
-pauseMenu.msg = summary;
-}
-} else if (choice === 2) {
-// Manual Save
-autoSaveGame();
-pauseMenu.msg = "Permainan berjaya disimpan!";
-} else if (choice === 3) {
-// Close
-gameState = STATE.OVERWORLD;
-}
-}
+
 function handleMove(dir) {
-audio.init();
-if (gameState === STATE.TITLE) {
-if (dir === 'up' || dir === 'down') {
-if (titleMenu.hasSave) {
-titleMenu.selected = titleMenu.selected === 0 ? 1 : 0;
-audio.select();
+  audio.init();
+
+  if (gameState === STATE.MAIN_MENU) {
+    if (dir === 'up') mainMenuIdx = Math.max(0, mainMenuIdx - 1);
+    if (dir === 'down') mainMenuIdx = Math.min(2, mainMenuIdx + 1);
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.SETTINGS) {
+    if (dir === 'up') settingsIdx = Math.max(0, settingsIdx - 1);
+    if (dir === 'down') settingsIdx = Math.min(2, settingsIdx + 1);
+    if (dir === 'left' || dir === 'right') {
+      if (settingsIdx === 0) settings.textSpeed = (settings.textSpeed + 1) % 3;
+      if (settingsIdx === 1) {
+        settings.sound = !settings.sound;
+        audio.soundOn = settings.sound;
+      }
+    }
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.PAUSE_MENU) {
+    if (dir === 'up') pauseMenuIdx = Math.max(0, pauseMenuIdx - 1);
+    if (dir === 'down') pauseMenuIdx = Math.min(4, pauseMenuIdx + 1);
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.BAG_VIEW) {
+    if (dir === 'up') bagMenuIdx = Math.max(0, bagMenuIdx - 1);
+    if (dir === 'down') bagMenuIdx = Math.min(player.bag.length - 1, bagMenuIdx + 1);
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.CHOICE) {
+    if (dir === 'up') activeChoice.selected = 0;
+    if (dir === 'down') activeChoice.selected = 1;
+    audio.select();
+    return;
+  }
+
+  if (gameState === STATE.BATTLE) {
+    if (battle && battle.turnState === 'PLAYER_INPUT') {
+      if (dir === 'left') battle.menuIdx = Math.max(0, battle.menuIdx - 1);
+      if (dir === 'right') battle.menuIdx = Math.min(battle.playerMon.moves.length - 1, battle.menuIdx + 1);
+      if (dir === 'up') battle.menuIdx = Math.max(0, battle.menuIdx - 2);
+      if (dir === 'down') battle.menuIdx = Math.min(battle.playerMon.moves.length - 1, battle.menuIdx + 2);
+      audio.select();
+    }
+    return;
+  }
+
+  if (gameState !== STATE.OVERWORLD) return;
+
+  let nx = player.x;
+  let ny = player.y;
+
+  if (dir === 'up') ny--;
+  if (dir === 'down') ny++;
+  if (dir === 'left') nx--;
+  if (dir === 'right') nx++;
+
+  if (!isSolid(nx, ny)) {
+    player.x = nx;
+    player.y = ny;
+    player.steps++;
+    audio.beep(240, 0.02);
+    checkTriggers();
+  }
 }
-}
-return;
-}
-if (gameState === STATE.MENU) {
-if (dir === 'up') pauseMenu.selected = (pauseMenu.selected + pauseMenu.items.length - 1) % pauseMenu.items.length;
-if (dir === 'down') pauseMenu.selected = (pauseMenu.selected + 1) % pauseMenu.items.length;
-pauseMenu.msg = "";
-audio.select();
-return;
-}
-if (gameState === STATE.CHOICE) {
-if (dir === 'up') activeChoice.selected = 0;
-if (dir === 'down') activeChoice.selected = 1;
-audio.select();
-return;
-}
-if (gameState === STATE.BATTLE) {
-if (battle && battle.turnState === 'PLAYER_INPUT') {
-if (dir === 'left') battle.menuIdx = Math.max(0, battle.menuIdx - 1);
-if (dir === 'right') battle.menuIdx = Math.min(battle.playerMon.moves.length - 1, battle.menuIdx + 1);
-if (dir === 'up') battle.menuIdx = Math.max(0, battle.menuIdx - 2);
-if (dir === 'down') battle.menuIdx = Math.min(battle.playerMon.moves.length - 1, battle.menuIdx + 2);
-audio.select();
-}
-return;
-}
-if (gameState !== STATE.OVERWORLD) return;
-let nx = player.x;
-let ny = player.y;
-player.dir = dir;
-if (dir === 'up') ny--;
-if (dir === 'down') ny++;
-if (dir === 'left') nx--;
-if (dir === 'right') nx++;
-if (!isSolid(nx, ny)) {
-player.x = nx;
-player.y = ny;
-audio.beep(240, 0.02);
-checkTriggers();
-}
-}
+
 function checkTriggers() {
-// Trigger 1: Karat recruit
-if (player.x === 2 && player.y === 2 && !player.hasKarat) {
-player.hasKarat = true;
-player.party.push(JSON.parse(JSON.stringify(SPECIES.KARAT)));
-player.objective = "Pergi ke sempadan ladang getah di utara.";
-autoSaveGame();
-startDialogue([
-"Danial menjumpai kompas tembaga dan kunci jentera lama.",
-"Karat, anjing mekanikal peninggalan datuk terbangun!",
-"Karat menyertai pasukan! Sekarang keluar ke ladang getah."
-]);
+  // Tile 3: Inspect grandfather's workbench
+  if (player.x === 2 && player.y === 2 && !player.hasKarat) {
+    player.hasKarat = true;
+    player.party.push(createMonster("KARAT", 5));
+    saveGame();
+    startDialogue([
+      "Danial membuka laci meja dan menjumpai kompas tembaga datuk!",
+      "Karat, anjing mekanikal berkarat milik datuk terbangun!",
+      "Karat menyertai pasukan! Sekarang keluar ke kebun getah di kanan."
+    ]);
+  }
+
+  // Chapter 1 Choice trigger
+  if (player.hasKarat && player.x >= 10 && player.x <= 12 && player.y === 2 && player.chapter === 1) {
+    player.chapter = 2;
+    startDialogue([
+      "Di tepi parit kebun getah, terdapat dua kelibat aneh!",
+      "Seekor Getah terperangkap di mangkuk getah.",
+      "Seekor Cencal sedang mengacah di bibir parit air!"
+    ], () => {
+      startChoice("Pilih rakan kedua:", "Bantu GETAH (Flora)", "Tangkap CENCAL (Water)", (choice) => {
+        if (choice === 0) {
+          player.party.push(createMonster("GETAH", 5));
+          saveGame();
+          startDialogue(["Getah menyertai pasukan!", "Terus mara ke pintu gua kapur di hujung timur!"]);
+        } else {
+          player.party.push(createMonster("CENCAL", 5));
+          saveGame();
+          startDialogue(["Cencal menyertai pasukan!", "Terus mara ke pintu gua kapur di hujung timur!"]);
+        }
+      });
+    });
+  }
+
+  // Chapter 2 Cave Entrance & Boss
+  if (player.chapter === 2 && player.x >= 16 && player.y >= 11) {
+    player.chapter = 3;
+    startDialogue([
+      "Anda temui Farah di dalam gua!",
+      "Farah: 'Danial! Ayah saya nak musnahkan gua lombong ini!'",
+      "Tauke Razak muncul bersama raksasa pelebur, LEBURAN!"
+    ], () => {
+      startBattle("LEBURAN", 8, () => {
+        gameState = STATE.ENDING;
+      });
+    });
+  }
 }
-// Trigger 2: Chapter 2 Choice
-if (player.hasKarat && player.x >= 10 && player.x <= 12 && player.y === 2 && player.chapter === 1) {
-player.chapter = 2;
-startDialogue([
-"Di tepi parit ladang getah, ada dua kelibat aneh!",
-"Seekor Getah terperangkap pada cawan susu getah.",
-"Manakala seekor Cencal sedang mengintai dari lumpur."
-], () => {
-startChoice("Pilih rakan kedua anda:", "Bantu GETAH (Flora)", "Tangkap CENCAL (Water)", (choice) => {
-if (choice === 0) {
-player.party.push(JSON.parse(JSON.stringify(SPECIES.GETAH)));
-startDialogue(["Getah menyertai pasukan anda!", "Mara ke pintu gua kapur di tenggara!"]);
-} else {
-player.party.push(JSON.parse(JSON.stringify(SPECIES.CENCAL)));
-startDialogue(["Cencal menyertai pasukan anda!", "Mara ke pintu gua kapur di tenggara!"]);
-}
-player.objective = "Masuk ke pintu gua kuari kapur di koordinat (16, 11).";
-autoSaveGame();
-});
-});
-}
-// Trigger 3: Climax Boss
-if (player.chapter === 2 && player.x >= 16 && player.y >= 11) {
-player.chapter = 3;
-player.objective = "Tewaskan Leburan dan selamatkan Farah!";
-startDialogue([
-"Anda menemui Farah di dalam gua rahsia!",
-"Farah: 'Danial! Ayah nak runtuhkan lombong ini!'",
-"Tauke Razak muncul bersama raksasa pelebur LEBURAN!"
-], () => {
-startBattle("LEBURAN", () => {
-gameState = STATE.ENDING;
-autoSaveGame();
-});
-});
-}
-}
-// --- 9. KEYBOARD & TOUCH BINDINGS ---
+
+// Keyboard controls
 window.addEventListener('keydown', (e) => {
-const key = e.key;
-if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Enter'].includes(key)) {
-e.preventDefault();
-}
-if (e.repeat && ['z','Z','Enter','x','X','Escape'].includes(key)) return;
-if (key === 'ArrowUp' || key === 'w' || key === 'W') handleMove('up');
-if (key === 'ArrowDown' || key === 's' || key === 'S') handleMove('down');
-if (key === 'ArrowLeft' || key === 'a' || key === 'A') handleMove('left');
-if (key === 'ArrowRight' || key === 'd' || key === 'D') handleMove('right');
-if (key === 'z' || key === 'Z' || key === 'Enter') handleInputA();
-if (key === 'x' || key === 'X' || key === 'Escape') handleInputB();
-if (key === 'm' || key === 'M') handleInputB();
-});
-const bindTouch = (id, fn) => {
-const el = document.getElementById(id);
-if (!el) return;
-el.addEventListener('touchstart', (e) => { e.preventDefault(); fn(); }, { passive: false });
-el.addEventListener('mousedown', (e) => { e.preventDefault(); fn(); });
-};
-bindTouch('btn-up', () => handleMove('up'));
-bindTouch('btn-down', () => handleMove('down'));
-bindTouch('btn-left', () => handleMove('left'));
-bindTouch('btn-right', () => handleMove('right'));
-bindTouch('btn-a', () => handleInputA());
-bindTouch('btn-b', () => handleInputB());
-bindTouch('btn-menu', () => handleInputB());
-// --- 10. MODAL & DUITNOW QR RENDERER ---
-function renderMockDuitNowQR() {
-const qCan = document.getElementById('qrCanvas');
-if (!qCan) return;
-const qtx = qCan.getContext('2d');
-qtx.fillStyle = '#ffffff';
-qtx.fillRect(0, 0, 160, 160);
-qtx.fillStyle = '#ed1c24';
-qtx.fillRect(10, 10, 140, 24);
-qtx.fillStyle = '#ffffff';
-qtx.font = 'bold 11px sans-serif';
-qtx.textAlign = 'center';
-qtx.fillText("DuitNow QR", 80, 26);
-qtx.fillStyle = '#000000';
-const drawCorner = (x, y) => {
-qtx.fillRect(x, y, 28, 28);
-qtx.fillStyle = '#ffffff';
-qtx.fillRect(x + 4, y + 4, 20, 20);
-qtx.fillStyle = '#000000';
-qtx.fillRect(x + 8, y + 8, 12, 12);
-};
-drawCorner(20, 42);
-drawCorner(112, 42);
-drawCorner(20, 115);
-for (let r = 0; r < 8; r++) {
-for (let c = 0; c < 8; c++) {
-if ((r + c) % 2 === 0) {
-qtx.fillRect(56 + c * 6, 60 + r * 6, 4, 4);
-}
-}
-}
-}
-renderMockDuitNowQR();
-const modal = document.getElementById('kopi-modal');
-function openKopiModal() {
-if (modal) modal.style.display = 'flex';
-}
-document.getElementById('btn-close-modal').addEventListener('click', () => {
-if (modal) modal.style.display = 'none';
-});
-modal.addEventListener('click', (event) => {
-if (event.target === modal) modal.style.display = 'none';
-});
-</script>
-</body>
-</html>
+  const key =
